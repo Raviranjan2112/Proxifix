@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worker Dashboard | ProxiFix</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <a class="brand" href="index.html">
+      <span class="brand-icon">P</span>
+      ProxiFix
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <button id="logout-btn" class="btn btn-outline" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Worker dashboard</p>
+        <h1 id="welcome-message">Welcome</h1>
+        <p id="worker-summary">Manage your profile, availability, and service requests.</p>
+      </div>
+
+      <div class="grid-3">
+        <article class="card">
+          <span class="service-icon">✅</span>
+          <h3>Verification Status</h3>
+          <p id="verification-status">Loading...</p>
+        </article>
+
+        <article class="card">
+          <span class="service-icon">🟢</span>
+          <h3>Availability</h3>
+          <p id="availability-status">Loading...</p>
+          <br>
+          <button id="availability-btn" class="btn btn-primary" type="button">
+            Go Online
+          </button>
+        </article>
+
+        <article class="card">
+          <span class="service-icon">⭐</span>
+          <h3>My Rating</h3>
+          <p id="rating">0.0 / 5.0</p>
+          <br>
+          <p class="muted">Ratings appear after completed bookings.</p>
+        </article>
+      </div>
+
+      <br><br>
+
+      <div class="section-heading">
+        <p class="eyebrow">Service requests</p>
+        <h2>Incoming jobs</h2>
+        <p class="muted">New customer booking requests will appear here.</p>
+      </div>
+
+      <div id="job-list" class="grid-3">
+  <article class="card">
+    <p class="muted">Loading service requests...</p>
+  </article>
+   </div>  
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ProxiFix. Trusted home services made simple.</p>
+  </footer>
+
+  <script type="module" src="js/worker-dashboard.js"></script>
+</body>
+</html>

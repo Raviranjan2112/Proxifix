@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Dashboard | ProxiFix</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <a class="brand" href="index.html">
+      <span class="brand-icon">P</span>
+      ProxiFix
+    </a>
+
+    <nav class="nav-links">
+      <a href="workers.html">Find Workers</a>
+      <a href="index.html">Home</a>
+      <button id="logout-btn" class="btn btn-outline" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Customer dashboard</p>
+        <h1 id="welcome-message">Welcome to ProxiFix</h1>
+        <p>Find verified service professionals and manage your bookings.</p>
+      </div>
+
+      <div class="grid-3">
+        <article class="card">
+          <span class="service-icon">🔎</span>
+          <h3>Find a Worker</h3>
+          <p>Browse approved plumbers, electricians, cleaners, and carpenters.</p>
+          <br>
+          <a class="btn btn-primary" href="workers.html">Browse Workers</a>
+        </article>
+
+        <article class="card">
+          <span class="service-icon">📋</span>
+          <h3>My Bookings</h3>
+          <p>Your active and completed service bookings will appear here.</p>
+          <br>
+
+          <div id="bookings-list">
+            <p class="muted">Loading bookings...</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="service-icon">⭐</span>
+          <h3>Rate Services</h3>
+          <p>Rate a worker after their service is completed.</p>
+          <br>
+
+          <div id="ratings-list">
+            <p class="muted">Loading completed bookings...</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ProxiFix. Trusted home services made simple.</p>
+  </footer>
+
+  <script type="module" src="js/customer-dashboard.js"></script>
+</body>
+</html>

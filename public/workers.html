@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Workers | ProxiFix</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <a class="brand" href="index.html">
+      <span class="brand-icon">P</span>
+      ProxiFix
+    </a>
+
+    <nav class="nav-links">
+      <a href="customer-dashboard.html">Dashboard</a>
+      <a href="index.html">Home</a>
+      <button id="logout-btn" class="btn btn-outline" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Verified professionals</p>
+        <h1>Find a home-service worker</h1>
+        <p>Browse approved workers and choose the right professional for your job.</p>
+      </div>
+
+      <div class="form-group" style="max-width: 320px; margin-bottom: 28px;">
+        <label for="category-filter">Filter by service</label>
+        <select id="category-filter">
+          <option value="all">All services</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Cleaning">Home Cleaning</option>
+          <option value="Carpentry">Carpentry</option>
+        </select>
+      </div>
+
+      <div id="worker-list" class="grid-3">
+        <article class="card">
+          <p class="muted">Loading approved workers...</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ProxiFix. Trusted home services made simple.</p>
+  </footer>
+
+  <script type="module" src="js/workers.js"></script>
+</body>
+</html>

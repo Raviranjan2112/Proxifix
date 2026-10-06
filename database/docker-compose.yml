@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.5
+    container_name: proxifix-postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: proxifix
+      POSTGRES_USER: proxifix_app
+      POSTGRES_PASSWORD: ProxiFixLocalPassword123!
+    ports:
+      - "5432:5432"
+    volumes:
+      - proxifix_postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  proxifix_postgres_data:

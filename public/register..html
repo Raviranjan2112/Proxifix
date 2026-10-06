@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | ProxiFix</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <a class="brand" href="index.html">
+      <span class="brand-icon">P</span>
+      <span>ProxiFix</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="login.html">Login</a>
+    </nav>
+  </header>
+
+  <main class="form-container">
+    <section class="form-card">
+      <p class="eyebrow">CREATE YOUR ACCOUNT</p>
+      <h1>Join ProxiFix</h1>
+      <p class="muted">Register as a customer or home-service worker.</p>
+
+      <form id="register-form">
+        <div class="form-group">
+          <label for="full-name">Full name</label>
+          <input id="full-name" type="text" placeholder="Your full name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone number</label>
+          <input id="phone" type="tel" placeholder="9876543210" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input id="email" type="email" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" minlength="6" placeholder="Minimum 6 characters" required>
+        </div>
+
+        <div class="form-group">
+          <label for="role">Register as</label>
+          <select id="role" required>
+            <option value="customer">Customer</option>
+            <option value="worker">Service Worker</option>
+          </select>
+        </div>
+
+        <div id="worker-fields" hidden>
+          <div class="form-group">
+            <label for="service-category">Service category</label>
+            <select id="service-category">
+              <option value="">Select a category</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Home Cleaning">Home Cleaning</option>
+              <option value="Carpentry">Carpentry</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="experience">Experience in years</label>
+            <input id="experience" type="number" min="0" placeholder="0">
+          </div>
+
+          <div class="form-group">
+            <label for="city">City / area</label>
+            <input id="city" type="text" placeholder="Your city or area">
+          </div>
+        </div>
+
+        <p id="form-message" class="message"></p>
+
+        <button id="register-btn" class="btn btn-primary" type="submit">
+          Create Account
+        </button>
+      </form>
+
+      <p class="muted" style="margin-top: 22px;">
+        Already have an account?
+        <a href="login.html" style="color: #14532d; font-weight: 700;">Log in</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    © 2026 ProxiFix. Trusted home services made simple.
+  </footer>
+
+  <script type="module" src="js/register.js"></script>
+</body>
+</html>

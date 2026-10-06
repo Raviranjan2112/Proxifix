@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | ProxiFix</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <a class="brand" href="index.html">
+      <span class="brand-icon">P</span>
+      ProxiFix Admin
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <button id="logout-btn" class="btn btn-outline" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Administrator</p>
+        <h1 id="welcome-message">Admin Dashboard</h1>
+        <p>Review worker registrations and approve verified professionals.</p>
+      </div>
+
+      <div class="grid-3">
+        <article class="card">
+          <span class="service-icon">👷</span>
+          <h3>Total Workers</h3>
+          <p id="total-workers">0</p>
+        </article>
+
+        <article class="card">
+          <span class="service-icon">⏳</span>
+          <h3>Pending Approval</h3>
+          <p id="pending-workers">0</p>
+        </article>
+
+        <article class="card">
+          <span class="service-icon">✅</span>
+          <h3>Approved Workers</h3>
+          <p id="approved-workers">0</p>
+        </article>
+      </div>
+
+      <br><br>
+
+      <div class="section-heading">
+        <p class="eyebrow">Verification management</p>
+        <h2>Worker applications</h2>
+        <p class="muted">Approve only demo/test workers for this college project.</p>
+      </div>
+
+      <div id="worker-list" class="grid-3">
+        <article class="card">
+          <p class="muted">Loading worker applications...</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ProxiFix. Administrator portal.</p>
+  </footer>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

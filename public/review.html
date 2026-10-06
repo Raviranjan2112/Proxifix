@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rate Service | ProxiFix</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <a class="brand" href="index.html">
+      <span class="brand-icon">P</span> ProxiFix
+    </a>
+  </header>
+
+  <main class="container">
+    <section class="form-container">
+      <div class="form-card">
+        <p class="eyebrow">Service feedback</p>
+        <h1>Rate your worker</h1>
+        <p id="booking-info" class="muted">Loading booking details...</p>
+
+        <form id="review-form">
+          <div class="form-group">
+            <label for="rating">Star rating</label>
+            <select id="rating" required>
+              <option value="">Select rating</option>
+              <option value="5">5 - Excellent</option>
+              <option value="4">4 - Very Good</option>
+              <option value="3">3 - Good</option>
+              <option value="2">2 - Fair</option>
+              <option value="1">1 - Poor</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="feedback">Your feedback</label>
+            <textarea id="feedback" rows="5"
+              placeholder="Describe your experience" required></textarea>
+          </div>
+
+          <br>
+          <button class="btn btn-primary" type="submit">Submit Review</button>
+          <p id="form-message" class="message"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ProxiFix. Trusted home services made simple.</p>
+  </footer>
+
+  <script type="module" src="js/review.js"></script>
+</body>
+</html>

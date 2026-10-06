@@ -1,0 +1,10 @@
+# Copy this file to C:\Users\<your-windows-user>\.cloudflared\config.yml
+# after you create a named tunnel in your Cloudflare account.
+tunnel: <TUNNEL_UUID>
+credentials-file: C:\Users\<your-windows-user>\.cloudflared\<TUNNEL_UUID>.json
+
+ingress:
+  # One hostname serves the React UI, API, uploads, and client-side routes.
+  - hostname: app.example.com
+    service: http://localhost:4000
+  - service: http_status:404

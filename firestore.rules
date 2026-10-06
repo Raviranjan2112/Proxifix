@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == "raviranjan211204@gmail.com";
+    }
+
+    match /users/{userId} {
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role in ["customer", "worker"];
+
+      allow read: if signedIn()
+        && (request.auth.uid == userId || isAdmin());
+
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.get("verificationStatus", "")
+             == resource.data.get("verificationStatus", "")
+        );
+    }
+
+    match /workers/{workerId} {
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+        && request.auth.uid == workerId
+        && request.resource.data.role == "worker";
+
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && request.auth.uid == workerId
+          && request.resource.data
+              .diff(resource.data)
+              .affectedKeys()
+              .hasOnly(["isOnline"])
+        );
+    }
+
+    match /bookings/{bookingId} {
+      allow read, create: if signedIn();
+      allow update: if signedIn();
+    }
+
+    match /reviews/{reviewId} {
+      allow read, create: if signedIn();
+    }
+  }
+}
