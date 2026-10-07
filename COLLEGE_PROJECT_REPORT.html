@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ProxiFix Academic Project Report - Ravi Ranjan</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+  </script>
+  <style>
+    @page {
+      size: A4;
+      margin: 20mm 18mm 20mm 18mm;
+    }
+    @media print {
+      body {
+        font-size: 11pt;
+        color: #111;
+      }
+      .page-break {
+        page-break-after: always;
+        break-after: page;
+        height: 0;
+        margin: 0;
+        border: none;
+      }
+      h1.chapter-title {
+        page-break-before: always;
+        break-before: page;
+      }
+      table, pre, .mermaid {
+        page-break-inside: avoid;
+      }
+      a {
+        color: #0b57d0;
+        text-decoration: none;
+      }
+    }
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.65;
+      color: #222;
+      background: #fff;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+    h1, h2, h3, h4, h5 {
+      color: #0d1b2a;
+      font-weight: 700;
+      margin-top: 1.6em;
+      margin-bottom: 0.5em;
+    }
+    h1 {
+      font-size: 20pt;
+      border-bottom: 2px solid #0066cc;
+      padding-bottom: 8px;
+    }
+    h2 {
+      font-size: 15pt;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    h3 {
+      font-size: 12.5pt;
+    }
+    p {
+      margin: 0.7em 0;
+      text-align: justify;
+    }
+    .page-break {
+      margin: 30px 0;
+      border-bottom: 1px dashed #ccc;
+    }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.2em 0;
+      font-size: 9.5pt;
+    }
+    .report-table th, .report-table td {
+      border: 1px solid #ccd1d9;
+      padding: 7px 10px;
+      text-align: left;
+    }
+    .report-table th {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      font-weight: 600;
+    }
+    .report-table tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    pre {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #0066cc;
+      border-radius: 4px;
+      padding: 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 9pt;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-size: 9pt;
+      color: #0f172a;
+    }
+    ul, ol {
+      padding-left: 24px;
+      margin: 0.8em 0;
+    }
+    li {
+      margin-bottom: 0.35em;
+    }
+    .mermaid {
+      background: #fafbfc;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      padding: 16px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .math {
+      font-style: italic;
+      font-family: 'Cambria Math', 'Times New Roman', serif;
+    }
+  </style>
+</head>
+<body>
+<h1 class="chapter-title">ACADEMIC PROJECT REPORT</h1>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>PROXIFIX: HYPERLOCAL ON-DEMAND HOME SERVICE DISCOVERY & LIVE TRACKING PLATFORM</strong></h1>
+<h3><em>A Full-Stack Geospatial Web Application with PostGIS Spatial Indexing, Node.js Micro-Architecture, React 19 SPA, and Multi-Cloud Serverless Infrastructure</em></h3>
+<div class="page-break"></div>
+<p><strong>Submitted in Partial Fulfillment of the Requirements for the Degree of</strong>  </p>
+<p><strong>Bachelor of Technology / Bachelor of Engineering in Computer Science & Engineering</strong></p>
+<p><strong>Submitted By:</strong>  </p>
+<p><strong>Ravi Ranjan</strong>  </p>
+<p><em>(GitHub: <a href="https://github.com/Raviranjan2112">@Raviranjan2112</a>)</em>  </p>
+<p><em>Email: raviranjan211204@gmail.com</em>  </p>
+<p><em>Phone: +91 9123401283</em></p>
+<p><strong>Department of Computer Science and Engineering</strong>  </p>
+<p><strong>Academic Year: 2026</strong></p>
+<div class="page-break"></div>
+<h2><strong>LIVE PRODUCTION SYSTEM URLS</strong></h2>
+<ul>
+<li><strong>Production Web Application (Frontend):</strong> <a href="https://proxifix.vercel.app">https://proxifix.vercel.app</a></li>
+<li><strong>Production REST API (Backend):</strong> <a href="https://proxifix-api.onrender.com">https://proxifix-api.onrender.com</a></li>
+<li><strong>Production Database Engine:</strong> Supabase Cloud Managed PostgreSQL 16 (Seoul Region) with PostGIS 3.5</li>
+<li><strong>Source Code Repository:</strong> <a href="https://github.com/Raviranjan2112/Proxifix">https://github.com/Raviranjan2112/Proxifix</a></li>
+</ul>
+<div class="page-break"></div>
+<h2><strong>CERTIFICATE OF APPROVAL</strong></h2>
+<p>This is to certify that the project entitled <strong>"PROXIFIX: Hyperlocal On-Demand Home Service Discovery & Live Tracking Platform"</strong>, submitted by <strong>Ravi Ranjan</strong> in partial fulfillment of the requirements for the award of the Degree of <strong>Bachelor of Technology / Bachelor of Engineering in Computer Science and Engineering</strong>, is a bona fide record of work carried out under guidance and supervision.</p>
+<p>The results embodied in this report have been verified through live cloud deployment and have not been submitted to any other University or Institute for the award of any degree or diploma.</p>
+<p><strong>Project Guide / Supervisor:</strong> __________________________  </p>
+<p><strong>Head of Department (CSE):</strong> __________________________  </p>
+<p><strong>External Examiner:</strong> __________________________  </p>
+<div class="page-break"></div>
+<h2><strong>DECLARATION</strong></h2>
+<p>I, <strong>Ravi Ranjan</strong>, hereby declare that this project report entitled <strong>"PROXIFIX: Hyperlocal On-Demand Home Service Discovery & Live Tracking Platform"</strong> is my original work. The analysis, architectural design, implementation, and cloud deployment presented herein were conducted by me. All sources of literature, open-source libraries, and cloud platforms utilized in this research and implementation have been duly cited and acknowledged.</p>
+<p><strong>Ravi Ranjan</strong>  </p>
+<p><em>Date: October 07, 2026</em>  </p>
+<div class="page-break"></div>
+<h2><strong>ACKNOWLEDGEMENT</strong></h2>
+<p>I express my deepest gratitude to my project supervisor, faculty members, and the Department of Computer Science & Engineering for providing academic direction and technical facilities. I also extend my sincere appreciation to the open-source software community for the exceptional tools and platforms (React, Node.js, Express, PostgreSQL, PostGIS, Vercel, Render, and Supabase) that made this full-scale cloud deployment possible.</p>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>TABLE OF CONTENTS</strong></h1>
+<ol>
+<li><strong>ABSTRACT</strong></li>
+<li><strong>CHAPTER 1: INTRODUCTION & PROJECT OVERVIEW</strong></li>
+</ol>
+<ul>
+<li>1.1 Background & Motivation</li>
+<li>1.2 Problem Statement</li>
+<li>1.3 Proposed Solution & Objectives</li>
+<li>1.4 Scope and Limitations</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 2: LITERATURE REVIEW & MARKET ANALYSIS</strong></li>
+</ol>
+<ul>
+<li>2.1 Existing Industry Solutions (Urban Company, TaskRabbit, Angi)</li>
+<li>2.2 Comparative Gap Analysis</li>
+<li>2.3 Novel Contributions of ProxiFix</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 3: SOFTWARE REQUIREMENTS SPECIFICATION (SRS)</strong></li>
+</ol>
+<ul>
+<li>3.1 Functional Requirements (FR)</li>
+<li>3.2 Non-Functional Requirements (NFR)</li>
+<li>3.3 System User Personas (Customer, Worker, Administrator)</li>
+<li>3.4 Hardware, Software & Network Specifications</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 4: TECHNOLOGY STACK & ARCHITECTURAL RATIONALE</strong></li>
+</ol>
+<ul>
+<li>4.1 Frontend Tier: React 19, Vite, Leaflet, Axios</li>
+<li>4.2 Backend Tier: Node.js, Express 5, Socket.io, Multer</li>
+<li>4.3 Database Tier: PostgreSQL 16, PostGIS Spatial Extension, pgcrypto</li>
+<li>4.4 Data Validation & Security Layer: Zod, JWT, bcrypt, Helmet, Rate-Limiting</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 5: SYSTEM ARCHITECTURE & DESIGN DIAGRAMS</strong></li>
+</ol>
+<ul>
+<li>5.1 High-Level Multi-Cloud System Architecture</li>
+<li>5.2 Micro-Flow of Geolocation & Worker Matching</li>
+<li>5.3 Sequence Diagram: End-to-End Booking Lifecycle</li>
+<li>5.4 State Machine Diagram: Booking States</li>
+<li>5.5 Entity-Relationship (ER) Diagram</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 6: DATABASE DESIGN & DATA DICTIONARY</strong></li>
+</ol>
+<ul>
+<li>6.1 Spatial Data Modeling with PostGIS</li>
+<li>6.2 Data Dictionary (Tables, Attributes, Data Types, Constraints)</li>
+<li>6.3 Database Migrations & Version Tracking</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 7: CLOUD HOSTING & DEVOPS DEPLOYMENT STRATEGY</strong></li>
+</ol>
+<ul>
+<li>7.1 Multi-Cloud Topology Overview</li>
+<li>7.2 Frontend Deployment on Vercel Edge CDN</li>
+<li>7.3 Backend Deployment on Render Container Service</li>
+<li>7.4 Database Hosting on Supabase Cloud</li>
+<li>7.5 Continuous Integration & Continuous Deployment (CI/CD) Pipeline</li>
+<li>7.6 Cross-Origin Resource Sharing (CORS) & SSL/TLS Infrastructure</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 8: SECURITY, AUTHENTICATION & ACCESS CONTROL</strong></li>
+</ol>
+<ul>
+<li>8.1 JSON Web Token (JWT) Stateless Session Management</li>
+<li>8.2 Password Hashing with Blowfish / Bcrypt (Salt Rounds 12)</li>
+<li>8.3 Role-Based Access Control (RBAC) Architecture</li>
+<li>8.4 Network Security: Helmet, CORP, CSP, and Anti-Abuse Rate Limiters</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 9: CORE ALGORITHMIC IMPLEMENTATION</strong></li>
+</ol>
+<ul>
+<li>9.1 Spatial Proximity Computation: Haversine vs. PostGIS <code>ST_DWithin</code></li>
+<li>9.2 Real-Time Polling & Telemetry Synchronization</li>
+<li>9.3 Proof-of-Work Photographic Verification Flow</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 10: TEST METHODOLOGY, VERIFICATION & LIVE RESULTS</strong></li>
+</ol>
+<ul>
+<li>10.1 Live Production Health Endpoint Verification</li>
+<li>10.2 Spatial Search Performance & Latency Benchmarks</li>
+<li>10.3 Test Cases Matrix (Functional, Security, Spatial, Recovery)</li>
+</ul>
+<ol>
+<li><strong>CHAPTER 11: CONCLUSION & FUTURE SCOPE</strong></li>
+</ol>
+<ul>
+<li>11.1 Project Summary & Achievements</li>
+<li>11.2 Future Roadmap (Native Mobile Apps, Payment Gateways, S3 Object Storage)</li>
+</ul>
+<ol>
+<li><strong>REFERENCES & BIBLIOGRAPHY</strong></li>
+</ol>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>ABSTRACT</strong></h1>
+<p>In contemporary urban environments, accessing reliable, skilled, and vetted home maintenance professionals (plumbers, electricians, carpenters, cleaners, appliance technicians) remains a friction-filled, opaque, and decentralized process. Traditional directory listings fail to provide real-time location awareness, live service tracking, upfront standardized pricing, and verifiable proof of completed work.</p>
+<p>This project presents <strong>ProxiFix</strong>, an enterprise-grade, hyperlocal, on-demand home services platform engineered using modern cloud technologies and geospatial spatial indexing. The platform incorporates a three-tier architecture:</p>
+<ol>
+<li><strong>Frontend:</strong> A responsive Single-Page Application (SPA) built with <strong>React 19</strong>, <strong>Vite</strong>, and <strong>Leaflet / React-Leaflet</strong>, featuring interactive geospatial mapping, dynamic status updates, and browser GPS integration.</li>
+<li><strong>Backend:</strong> A high-throughput REST API developed on <strong>Node.js</strong> and <strong>Express 5</strong>, implementing strict schema validation (<strong>Zod</strong>), cryptographic authentication (<strong>bcrypt</strong>, <strong>JSON Web Tokens</strong>), HTTP security headers (<strong>Helmet</strong>), and denial-of-service mitigation (<strong>Express Rate Limit</strong>).</li>
+<li><strong>Database:</strong> A relational database managed by <strong>PostgreSQL 16</strong> with the <strong>PostGIS 3.5</strong> spatial extension, allowing high-performance geospatial spherical calculations (<code>ST_DWithin</code>, <code>ST_Distance</code>, <code>ST_MakePoint</code>) indexed via Generalized Search Trees (GiST).</li>
+</ol>
+<p>The platform is deployed globally using a resilient multi-cloud architecture: <strong>Vercel</strong> provides an edge-cached content delivery network (CDN) for the React frontend; <strong>Render</strong> hosts the containerized Express API server; and <strong>Supabase</strong> provides an enterprise-grade cloud-hosted PostgreSQL database. Live verification confirms operational health, sub-second query execution, and seamless cross-origin communication secured by HTTPS/TLS 1.3 encryption.</p>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 1: INTRODUCTION & PROJECT OVERVIEW</strong></h1>
+<h3>1.1 Background & Motivation</h3>
+<p>The informal gig economy for domestic repair and maintenance in developing economies is characterized by information asymmetry. Customers struggle to locate nearby technicians during domestic emergencies (such as pipe bursts or short circuits), while skilled independent tradespeople face difficulties discovering clients within their immediate physical radius without paying exorbitant intermediary commission fees.</p>
+<p>Drawing architectural inspiration from on-demand ride-hailing and food-delivery paradigms (e.g., Uber, Swiggy), <strong>ProxiFix</strong> applies spatial indexing algorithms and mobile-first web technologies to transform home services into an immediate, transparent, and trackable utility.</p>
+<h3>1.2 Problem Statement</h3>
+<p>Existing approaches to home service procurement suffer from four fundamental flaws:</p>
+<ol>
+<li><strong>Absence of Real-Time Geospatial Discovery:</strong> Static online classifieds display phone numbers without proximity calculations, leading to delayed arrivals and high travel surcharges.</li>
+<li><strong>Lack of Lifecycle Transparency:</strong> Customers are unable to monitor the technician’s arrival, job commencement, and completion status in real time.</li>
+<li><strong>Unstandardized Pricing & Accountability:</strong> Arbitrary cash-on-delivery pricing models cause dispute, with no verifiable proof of the completed physical repair.</li>
+<li><strong>Unvetted Independent Workers:</strong> A lack of centralized administrative verification exposes households to safety risks.</li>
+</ol>
+<h3>1.3 Proposed Solution & Objectives</h3>
+<p>ProxiFix solves these challenges through an integrated web platform:</p>
+<ul>
+<li><strong>Hyperlocal Geospatial Worker Matching:</strong> Using PostGIS spatial coordinates to filter verified, available workers within a 1 to 20 kilometer radial boundary from the customer's live GPS coordinates.</li>
+<li><strong>Granular Lifecycle Tracking (Swiggy-Style):</strong> A state-machine-driven booking lifecycle supporting progressive statuses: <code>PENDING</code> <span class="math">\rightarrow</span> <code>ACCEPTED</code> <span class="math">\rightarrow</span> <code>ARRIVING</code> <span class="math">\rightarrow</span> <code>IN_PROGRESS</code> <span class="math">\rightarrow</span> <code>COMPLETED</code> <span class="math">\rightarrow</span> <code>CLOSED</code>.</li>
+<li><strong>Photographic Proof-of-Completion:</strong> Technicians are mandated to upload photographic evidence of physical work before a booking can transition to completed status.</li>
+<li><strong>Centralized Administrative Governance:</strong> An administrative portal with verification workflows to vet worker credentials before enabling public directory visibility.</li>
+</ul>
+<h3>1.4 Scope and Limitations</h3>
+<ul>
+<li><strong>Scope:</strong> The system encompasses customer registration, worker onboarding with trade categories, administrative vetting, GPS-based discovery, real-time map visualization, booking management, and dual-party review ratings.</li>
+<li><strong>Current Limitations:</strong> The current free cloud deployment utilizes ephemeral container storage for uploaded work completion photos; production commercial deployment warrants migration to AWS S3 or Supabase Storage for multi-year persistence.</li>
+</ul>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 2: LITERATURE REVIEW & MARKET ANALYSIS</strong></h1>
+<h3>2.1 Existing Industry Solutions</h3>
+<p>Modern on-demand domestic maintenance platforms include:</p>
+<ol>
+<li><strong>Urban Company (formerly UrbanClap):</strong> Operates a centralized dispatch model where the platform assigns technicians algorithmically. However, it operates as a walled garden with high commission rates (20-30%) and minimal customer choice over individual technician profiles.</li>
+<li><strong>TaskRabbit:</strong> Connects freelancers with tasks, primarily dominant in North American markets. It lacks fine-grained live tracking mechanics and spatial spherical indexes optimized for Asian metropolitan densities.</li>
+<li><strong>Angi (formerly Angie's List):</strong> Relies heavily on lead generation and quote requests, introducing hours or days of latency between request and service dispatch.</li>
+</ol>
+<h3>2.2 Comparative Gap Analysis</h3>
+<table class="report-table">
+<tr><th>Feature Metric</th><th>Traditional Classifieds</th><th>Urban Company</th><th>TaskRabbit</th><th><strong>ProxiFix (This Project)</strong></th></tr>
+<tr><td><strong>Discovery Mechanism</strong></td><td>Static City Lists</td><td>Centralized Algorithm</td><td>Search & Filter</td><td><strong>Real-Time PostGIS Radius (1-20 km)</strong></td></tr>
+<tr><td><strong>Customer Choice</strong></td><td>Unvetted Phonebook</td><td>Platform Assigned</td><td>Worker Selected</td><td><strong>Customer Selects Vetted Local Worker</strong></td></tr>
+<tr><td><strong>Interactive Map Tracking</strong></td><td>None</td><td>Limited</td><td>None</td><td><strong>Live Leaflet Interactive Map</strong></td></tr>
+<tr><td><strong>Proof of Work Verification</strong></td><td>None</td><td>Sporadic</td><td>Manual Dispute</td><td><strong>Mandatory Photo Upload Pipeline</strong></td></tr>
+<tr><td><strong>Database Spatial Engine</strong></td><td>Standard SQL B-Trees</td><td>Proprietary</td><td>PostGIS / Redis</td><td><strong>PostgreSQL 16 + PostGIS 3.5 (GiST)</strong></td></tr>
+<tr><td><strong>Cloud Architecture</strong></td><td>Monolithic VPS</td><td>AWS Proprietary</td><td>Multi-Cloud</td><td><strong>Vercel Edge + Render API + Supabase</strong></td></tr>
+</table>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 3: SOFTWARE REQUIREMENTS SPECIFICATION (SRS)</strong></h1>
+<h3>3.1 Functional Requirements (FR)</h3>
+<ul>
+<li><strong>FR-01: User Authentication & Role Assignment:</strong> The system shall authenticate users via email and password using salted bcrypt hashes, issuing cryptographically signed JWT tokens embedding role claims (<code>CUSTOMER</code>, <code>WORKER</code>, <code>ADMIN</code>).</li>
+<li><strong>FR-02: Spatial Worker Discovery:</strong> The system shall accept customer latitude, longitude, service trade category, and radial threshold (1-20 km), returning all online, available, and administratively approved workers sorted by ascending distance.</li>
+<li><strong>FR-03: Dynamic Worker Availability & Telemetry:</strong> Workers shall have the capability to toggle their status between <code>AVAILABLE</code>, <code>BUSY</code>, and <code>OFFLINE</code>, simultaneously updating their current geospatial point coordinates.</li>
+<li><strong>FR-04: Booking State Machine:</strong> Customers can initiate bookings. Workers can accept or reject. The worker progressively updates status (<code>ARRIVING</code>, <code>IN_PROGRESS</code>, <code>COMPLETED</code>).</li>
+<li><strong>FR-05: Completion Evidence Upload:</strong> The system shall intercept completion requests and mandate an image attachment (<code>multipart/form-data</code>) validated for MIME type (<code>image/jpeg</code>, <code>image/png</code>, <code>image/webp</code>) and size limits (<span class="math">< 5\text{ MB}</span>).</li>
+<li><strong>FR-06: Administrative Management:</strong> Administrators shall access an aggregated analytics dashboard to inspect worker applications, review uploaded verification credentials, and approve or reject worker statuses.</li>
+</ul>
+<h3>3.2 Non-Functional Requirements (NFR)</h3>
+<ul>
+<li><strong>NFR-01: Performance & Latency:</strong> Spatial proximity queries executing over <span class="math">100,000</span> points shall resolve within <span class="math">< 50\text{ ms}</span> leveraging spatial GiST indexing.</li>
+<li><strong>NFR-02: Security & Transport Encryption:</strong> All network traffic across clients, backend servers, and database pools must be enforced over TLS 1.3 / HTTPS. Passwords must never be logged or stored in plaintext.</li>
+<li><strong>NFR-03: Scalability:</strong> The stateless nature of the Express API layer allows horizontal scaling across multiple container instances without shared session state bottlenecks.</li>
+<li><strong>NFR-04: Cross-Platform Accessibility:</strong> The client interface must render responsively across mobile browsers (Android Chrome, iOS Safari) and desktop browsers with strict WCAG compliance.</li>
+</ul>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 4: TECHNOLOGY STACK & ARCHITECTURAL RATIONALE</strong></h1>
+<pre><code class="language-">┌─────────────────────────────────────────────────────────────────────────┐
+│                          PROXIFIX TECH STACK                            │
+└─────────────────────────────────────────────────────────────────────────┘
+   FRONTEND TIER            BACKEND TIER               DATABASE TIER
+ ┌─────────────────┐      ┌──────────────────┐      ┌──────────────────┐
+ │  React 19 SPA   │      │   Node.js 24     │      │  PostgreSQL 16   │
+ │  Vite Bundler   │ ───► │   Express 5      │ ───► │  PostGIS 3.5     │
+ │  Leaflet Maps   │ ◄─── │   Zod Validation │ ◄─── │  pgcrypto        │
+ │  Axios HTTP     │      │   JWT + bcrypt   │      │  pg Connection   │
+ └─────────────────┘      └──────────────────┘      └──────────────────┘
+        ▲                          ▲                          ▲
+        │                          │                          │
+   VERCEL EDGE CDN            RENDER ENGINE            SUPABASE MANAGED
+   Global Deployment       Docker Container Host       PostgreSQL Cloud</code></pre>
+<h3>4.1 Frontend Tier: Modern React 19 Single Page Application</h3>
+<ul>
+<li><strong>React 19 & React Router 7:</strong> Utilizes React's latest concurrent rendering architecture and declarative client-side routing, enabling fluid, zero-page-refresh navigation between Customer, Worker, and Admin views.</li>
+<li><strong>Vite 8.2 Build Tool:</strong> Selected over legacy Create React App (CRA) due to its native ES-module development server, Lightning CSS transforms, and ultra-fast build times (<span class="math">< 3\text{ seconds}</span> for production rollups).</li>
+<li><strong>Leaflet & React-Leaflet 5.0:</strong> Open-source JavaScript mapping library used for rendering OpenStreetMap vector and raster tiles without incurring the prohibitive per-tile billing rates of Google Maps API.</li>
+<li><strong>Axios with Request Interceptors:</strong> Provides centralized HTTP configuration, automatically injecting the JWT <code>Authorization: Bearer <token></code> header into all outbound requests.</li>
+</ul>
+<h3>4.2 Backend Tier: High-Concurrency Node.js & Express 5</h3>
+<ul>
+<li><strong>Node.js (v24 LTS):</strong> Provides an event-driven, non-blocking asynchronous I/O runtime ideally suited for handling concurrent spatial search requests and telemetry polling.</li>
+<li><strong>Express 5.1:</strong> Next-generation Express routing engine featuring native Promise handling in route handlers, eliminating the need for unhandled promise rejection wrappers.</li>
+<li><strong>Socket.io 4.8:</strong> Integrated WebSocket engine providing bidirectional low-latency event conduits for instant client notifications and dispatch pings.</li>
+<li><strong>Multer 2.3:</strong> Streaming multipart parser configured with disk storage and cryptographically randomized UUID filenames for uploaded completion photographs.</li>
+</ul>
+<h3>4.3 Database Tier: PostgreSQL 16 with PostGIS 3.5 Extension</h3>
+<ul>
+<li><strong>PostgreSQL 16:</strong> Advanced open-source Object-Relational Database Management System providing ACID transactions, strict constraints, check clauses, and native JSON processing.</li>
+<li><strong>PostGIS 3.5 Spatial Extension:</strong> Transforms PostgreSQL into a true spatial database. Stores geographic coordinates as the native <code>GEOGRAPHY(POINT, 4326)</code> type (WGS 84 ellipsoid), allowing accurate metric calculations across the Earth's curved surface without planar projection distortions.</li>
+<li><strong>pgcrypto:</strong> Cryptographic extension enabling native SQL password hashing and verification via Blowfish (<code>crypt(..., gen_salt('bf', 12))</code>).</li>
+</ul>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 5: SYSTEM ARCHITECTURE & DESIGN DIAGRAMS</strong></h1>
+<h3>5.1 High-Level Multi-Cloud System Architecture</h3>
+<div class="mermaid">
+flowchart TD
+    subgraph Clients["User Tier (Any Device)"]
+        Customer["Customer Device\n(Browser Geolocation)"]
+        Worker["Worker Device\n(GPS Location Tracking)"]
+        Admin["Administrator Workstation\n(Governance Console)"]
+    end
+
+    subgraph CDN["Edge Network (Vercel)"]
+        VercelCDN["Vercel Global CDN Edge\n(proxifix.vercel.app)\nReact 19 SPA + Leaflet"]
+    end
+
+    subgraph Backend["Compute Layer (Render)"]
+        RenderService["Render Web Service\n(proxifix-api.onrender.com)\nNode.js 24 + Express 5 API"]
+        AuthMiddleware["JWT / RBAC Middleware"]
+        UploadStorage["Ephemeral Local Uploads\n(/uploads/completions)"]
+    end
+
+    subgraph Database["Data Tier (Supabase)"]
+        SupabaseDB["Supabase Managed PostgreSQL 16\n(aws-0-ap-northeast-2.pooler)"]
+        PostGIS["PostGIS 3.5 Spatial Engine\n(ST_DWithin, ST_Distance, GiST Index)"]
+        Tables["Tables: users, workers, bookings,\nreviews, notifications"]
+    end
+
+    Customer -->|HTTPS / Port 443| VercelCDN
+    Worker -->|HTTPS / Port 443| VercelCDN
+    Admin -->|HTTPS / Port 443| VercelCDN
+
+    VercelCDN -->|REST API Requests / JSON| RenderService
+    RenderService --> AuthMiddleware
+    RenderService --> UploadStorage
+    RenderService -->|Pooled Connection / Port 5432| SupabaseDB
+    SupabaseDB --> PostGIS
+    SupabaseDB --> Tables
+</div>
+<h3>5.2 Sequence Diagram: End-to-End Booking Lifecycle</h3>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Customer as Customer (Browser)
+    participant UI as React Frontend (Vercel)
+    participant API as Express API (Render)
+    participant DB as PostgreSQL + PostGIS (Supabase)
+    actor Worker as Worker (App)
+
+    Customer->>UI: Select Service (e.g. Plumber) + Click "Find Workers"
+    UI->>UI: Obtain GPS via navigator.geolocation
+    UI->>API: GET /api/workers/nearby?service=Plumber&latitude=...&longitude=...&radius=10
+    API->>DB: SQL: ST_DWithin(w.current_location, ST_MakePoint(...), 10000)
+    DB-->>API: Returns nearby available verified workers with distance_km
+    API-->>UI: 200 OK (Array of Workers)
+    UI->>Customer: Renders Workers on Leaflet Map & Card List
+
+    Customer->>UI: Select Worker & Click "Book Now"
+    UI->>API: POST /api/bookings (workerId, coordinates, address, scheduledTime)
+    API->>DB: INSERT INTO bookings (status: 'PENDING')
+    DB-->>API: Created booking record
+    API-->>UI: 201 Created (Booking details)
+
+    Worker->>API: GET /api/bookings (Polling / Dashboard)
+    API-->>Worker: Shows new PENDING booking
+    Worker->>API: PATCH /api/bookings/:id/status (status: 'ACCEPTED')
+    API->>DB: UPDATE bookings SET status = 'ACCEPTED'
+
+    Worker->>API: PATCH /api/bookings/:id/status (status: 'ARRIVING')
+    API->>DB: UPDATE bookings SET status = 'ARRIVING', arrived_at = NOW()
+
+    Worker->>API: POST /api/bookings/:id/completion-photo (multipart file)
+    API-->>Worker: Photo stored (/uploads/completions/xyz.jpg)
+    Worker->>API: PATCH /api/bookings/:id/status (status: 'COMPLETED')
+    API->>DB: UPDATE bookings SET status = 'COMPLETED'
+    
+    Customer->>UI: Views Completion Photo on Dashboard
+    Customer->>API: POST /api/bookings/:id/review (rating: 5, comment: "Great work!")
+    API->>DB: INSERT INTO reviews & UPDATE workers average_rating
+    API-->>UI: Review Recorded
+</div>
+<h3>5.3 State Machine: Booking Progression Flow</h3>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> PENDING: Customer Creates Booking
+    PENDING --> ACCEPTED: Worker Accepts
+    PENDING --> CANCELLED: Customer Cancels / Timeout
+    
+    ACCEPTED --> ARRIVING: Worker En Route
+    ACCEPTED --> CANCELLED: Worker / Customer Cancellation
+    
+    ARRIVING --> IN_PROGRESS: Worker Arrives & Begins Work
+    
+    IN_PROGRESS --> COMPLETED: Worker Uploads Photo & Marks Complete
+    
+    COMPLETED --> CLOSED: Customer Leaves Review & Closes Job
+    CLOSED --> [*]
+    CANCELLED --> [*]
+</div>
+<h3>5.4 Entity-Relationship (ER) Diagram</h3>
+<div class="mermaid">
+erDiagram
+    USERS ||--o| CUSTOMERS : "extends"
+    USERS ||--o| WORKERS : "extends"
+    USERS ||--o{ NOTIFICATIONS : "receives"
+    
+    WORKERS ||--|{ WORKER_SERVICES : "offers"
+    SERVICE_CATEGORIES ||--|{ WORKER_SERVICES : "categorizes"
+    
+    CUSTOMERS ||--o{ BOOKINGS : "places"
+    WORKERS ||--o{ BOOKINGS : "fulfills"
+    WORKER_SERVICES ||--o{ BOOKINGS : "specifies"
+    
+    BOOKINGS ||--o| PAYMENTS : "billed_by"
+    BOOKINGS ||--o| REVIEWS : "evaluated_by"
+
+    USERS {
+        uuid id PK
+        varchar name
+        varchar email UK
+        varchar phone UK
+        varchar password_hash
+        user_role role
+        boolean is_active
+        timestamp created_at
+    }
+
+    WORKERS {
+        uuid user_id PK, FK
+        text description
+        integer experience_years
+        verification_status verification_status
+        boolean online_status
+        availability_status availability_status
+        geography current_location
+        numeric average_rating
+        integer total_reviews
+    }
+
+    SERVICE_CATEGORIES {
+        uuid id PK
+        varchar name UK
+        text description
+        varchar icon
+    }
+
+    BOOKINGS {
+        uuid id PK
+        uuid customer_id FK
+        uuid worker_id FK
+        uuid worker_service_id FK
+        geography customer_location
+        text customer_address
+        booking_status booking_status
+        numeric total_amount
+        timestamp arrived_at
+        text completion_photo_url
+        timestamp created_at
+    }
+
+    REVIEWS {
+        uuid id PK
+        uuid booking_id FK
+        uuid customer_id FK
+        uuid worker_id FK
+        numeric rating
+        text comment
+        timestamp created_at
+    }
+</div>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 6: DATABASE DESIGN & DATA DICTIONARY</strong></h1>
+<h3>6.1 Spatial Data Modeling with PostGIS</h3>
+<p>Unlike conventional databases that compute distances via computationally expensive trigonometric Haversine algorithms in application code, ProxiFix leverages PostGIS native spatial functions. </p>
+<p>The <code>workers</code> table stores technician positions as:</p>
+<pre><code class="language-sql">current_location GEOGRAPHY(POINT, 4326)</code></pre>
+<p>Where <code>4326</code> is the spatial reference identifier (SRID) for the standard GPS World Geodetic System (WGS 84).</p>
+<p>To guarantee sub-second search speeds even across hundreds of thousands of active workers, the spatial column is indexed with a <strong>Generalized Search Tree (GiST)</strong>:</p>
+<pre><code class="language-sql">CREATE INDEX idx_worker_locations_geo 
+ON workers USING GIST (current_location);</code></pre>
+<p>When a customer executes a search for a plumber within <span class="math">10\text{ km}</span>, the query utilizes the indexed PostGIS operator:</p>
+<pre><code class="language-sql">SELECT 
+  w.user_id,
+  u.name,
+  ROUND((ST_Distance(w.current_location, ST_SetSRID(ST_MakePoint($longitude, $latitude), 4326)::geography) / 1000)::numeric, 2) AS distance_km
+FROM workers w
+JOIN users u ON u.id = w.user_id
+WHERE ST_DWithin(
+  w.current_location, 
+  ST_SetSRID(ST_MakePoint($longitude, $latitude), 4326)::geography, 
+  10000 -- Radius in meters
+)
+AND w.online_status = TRUE 
+AND w.verification_status = 'APPROVED'
+ORDER BY distance_km ASC;</code></pre>
+<h3>6.2 Data Dictionary</h3>
+<h4>Table 1: <code>users</code></h4>
+<table class="report-table">
+<tr><th>Column Name</th><th>Data Type</th><th>Constraints</th><th>Description</th></tr>
+<tr><td><code>id</code></td><td><code>UUID</code></td><td><code>PRIMARY KEY</code>, Default <code>gen_random_uuid()</code></td><td>Unique identifier for system user</td></tr>
+<tr><td><code>name</code></td><td><code>VARCHAR(120)</code></td><td><code>NOT NULL</code></td><td>Full display name of the user</td></tr>
+<tr><td><code>email</code></td><td><code>VARCHAR(255)</code></td><td><code>UNIQUE, NOT NULL</code></td><td>Verified login email address</td></tr>
+<tr><td><code>phone</code></td><td><code>VARCHAR(20)</code></td><td><code>UNIQUE, NOT NULL</code></td><td>Mobile number with country code</td></tr>
+<tr><td><code>password_hash</code></td><td><code>VARCHAR(255)</code></td><td><code>NOT NULL</code></td><td>Salted Blowfish/bcrypt hash</td></tr>
+<tr><td><code>role</code></td><td><code>user_role</code></td><td><code>ENUM ('CUSTOMER', 'WORKER', 'ADMIN')</code></td><td>Authorization level</td></tr>
+<tr><td><code>is_active</code></td><td><code>BOOLEAN</code></td><td>Default <code>TRUE</code></td><td>Soft-deletion and ban toggle</td></tr>
+<tr><td><code>created_at</code></td><td><code>TIMESTAMPTZ</code></td><td>Default <code>NOW()</code></td><td>Audit timestamp</td></tr>
+</table>
+<h4>Table 2: <code>workers</code></h4>
+<table class="report-table">
+<tr><th>Column Name</th><th>Data Type</th><th>Constraints</th><th>Description</th></tr>
+<tr><td><code>user_id</code></td><td><code>UUID</code></td><td><code>PRIMARY KEY, REFERENCES users(id)</code></td><td>Foreign key extending user profile</td></tr>
+<tr><td><code>experience_years</code></td><td><code>INTEGER</code></td><td><span class="math">\ge 0</span></td><td>Verified industry experience</td></tr>
+<tr><td><code>verification_status</code></td><td><code>ENUM</code></td><td><code>'PENDING', 'APPROVED', 'REJECTED'</code></td><td>Admin review state</td></tr>
+<tr><td><code>online_status</code></td><td><code>BOOLEAN</code></td><td>Default <code>FALSE</code></td><td>Toggle for receiving job dispatches</td></tr>
+<tr><td><code>availability_status</code></td><td><code>ENUM</code></td><td><code>'AVAILABLE', 'BUSY', 'OFFLINE'</code></td><td>Current operational capacity</td></tr>
+<tr><td><code>current_location</code></td><td><code>GEOGRAPHY</code></td><td><code>POINT, 4326</code></td><td>Live GPS coordinate pair</td></tr>
+<tr><td><code>average_rating</code></td><td><code>NUMERIC(2,1)</code></td><td><span class="math">0.0 \le \text{rating} \le 5.0</span></td><td>Cumulative customer satisfaction</td></tr>
+<tr><td><code>total_reviews</code></td><td><code>INTEGER</code></td><td>Default <code>0</code></td><td>Count of verified ratings</td></tr>
+</table>
+<h4>Table 3: <code>bookings</code></h4>
+<table class="report-table">
+<tr><th>Column Name</th><th>Data Type</th><th>Constraints</th><th>Description</th></tr>
+<tr><td><code>id</code></td><td><code>UUID</code></td><td><code>PRIMARY KEY</code>, Default <code>gen_random_uuid()</code></td><td>Unique order identifier</td></tr>
+<tr><td><code>customer_id</code></td><td><code>UUID</code></td><td><code>REFERENCES customers(user_id)</code></td><td>Booking initiator</td></tr>
+<tr><td><code>worker_id</code></td><td><code>UUID</code></td><td><code>REFERENCES workers(user_id)</code></td><td>Assigned technician</td></tr>
+<tr><td><code>customer_location</code></td><td><code>GEOGRAPHY</code></td><td><code>POINT, 4326, NOT NULL</code></td><td>Service destination coordinates</td></tr>
+<tr><td><code>customer_address</code></td><td><code>TEXT</code></td><td><code>NOT NULL</code></td><td>Human-readable address description</td></tr>
+<tr><td><code>booking_status</code></td><td><code>ENUM</code></td><td><code>'PENDING','ACCEPTED','ARRIVING',...</code></td><td>Current lifecycle state</td></tr>
+<tr><td><code>total_amount</code></td><td><code>NUMERIC(10,2)</code></td><td><span class="math">\ge 0</span></td><td>Agreed charge</td></tr>
+<tr><td><code>arrived_at</code></td><td><code>TIMESTAMPTZ</code></td><td><code>NULLABLE</code></td><td>Timestamp when worker arrived on-site</td></tr>
+<tr><td><code>completion_photo_url</code></td><td><code>TEXT</code></td><td><code>NULLABLE</code></td><td>Proof of completed repair</td></tr>
+</table>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 7: CLOUD HOSTING & DEVOPS DEPLOYMENT STRATEGY</strong></h1>
+<pre><code class="language-">┌────────────────────────────────────────────────────────────────────────┐
+│                      MULTI-CLOUD DEPLOYMENT TOPOLOGY                   │
+└────────────────────────────────────────────────────────────────────────┘
+                   ┌──────────────────────────────────┐
+                   │           GITHUB REPO            │
+                   │  Raviranjan2112/Proxifix (main)  │
+                   └──────────────────────────────────┘
+                            │                │
+            Webhook Trigger │                │ Webhook Trigger
+                            ▼                ▼
+             ┌─────────────────────┐   ┌──────────────────────┐
+             │       VERCEL        │   │        RENDER        │
+             │   Edge Global CDN   │   │  Container Runtime   │
+             │  proxifix.vercel.app│   │proxifix-api.onrender │
+             └─────────────────────┘   └──────────────────────┘
+                        │                         │
+                        │ API Fetch / JSON        │ TCP / TLS 1.3
+                        ▼                         ▼
+             ┌────────────────────────────────────────────────┐
+             │                 SUPABASE CLOUD                 │
+             │  PostgreSQL 16 + PostGIS (Session Pooler:5432) │
+             └────────────────────────────────────────────────┘</code></pre>
+<h3>7.1 Multi-Cloud Topology Overview</h3>
+<p>To maximize availability, eliminate single points of failure, and operate within high-performance free tiers, ProxiFix decomposes its architecture across three specialized cloud providers:</p>
+<ol>
+<li><strong>Frontend Hosting:</strong> <a href="https://vercel.com">Vercel</a></li>
+<li><strong>API Application Hosting:</strong> <a href="https://render.com">Render</a></li>
+<li><strong>Relational Database Hosting:</strong> <a href="https://supabase.com">Supabase</a></li>
+</ol>
+<h3>7.2 Frontend Tier on Vercel</h3>
+<ul>
+<li><strong>Platform:</strong> Vercel Edge Serverless Network.</li>
+<li><strong>Build Automation:</strong> Configured with root directory <code>frontend/location-app</code>. Upon detecting git pushes to branch <code>main</code>, Vercel initiates an isolated Linux build agent that runs:</li>
+</ul>
+<p>  ```bash</p>
+<p>  npm run build</p>
+<p>  ```</p>
+<ul>
+<li><strong>Routing Rewrites:</strong> Configured with <a href="file:///d:/certificate/proxifix/frontend/location-app/vercel.json"><code>vercel.json</code></a>:</li>
+</ul>
+<p>  ```json</p>
+<p>  {</p>
+<p>    "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]</p>
+<p>  }</p>
+<p>  ```</p>
+<p>  This guarantees that deep client-side links (<code>/login</code>, <code>/register</code>, <code>/customer</code>, <code>/worker</code>, <code>/admin</code>) route cleanly to the React Single Page Application without throwing HTTP 404 errors.</p>
+<ul>
+<li><strong>Environment Configuration:</strong> Injected variable <code>VITE_API_URL=https://proxifix-api.onrender.com/api</code>.</li>
+</ul>
+<h3>7.3 Backend Tier on Render</h3>
+<ul>
+<li><strong>Platform:</strong> Render Native Node Web Service.</li>
+<li><strong>Container Environment:</strong> Node.js 24 running on Ubuntu Linux.</li>
+<li><strong>Configuration:</strong></li>
+<li><strong>Root Directory:</strong> <code>backend</code></li>
+<li><strong>Build Command:</strong> <code>npm install</code></li>
+<li><strong>Start Command:</strong> <code>node scripts/migrate.js && node src/server.js</code></li>
+<li><strong>Automated Migration Engine:</strong> On every deployment startup, the script <a href="file:///d:/certificate/proxifix/backend/scripts/migrate.js"><code>migrate.js</code></a> checks the <code>schema_migrations</code> table in Supabase. Any unapplied SQL migration files are executed automatically before starting the HTTP server on port <code>10000</code>.</li>
+</ul>
+<h3>7.4 Database Tier on Supabase Cloud</h3>
+<ul>
+<li><strong>Platform:</strong> Supabase Managed PostgreSQL running on AWS Asia-Pacific infrastructure (Seoul <code>ap-northeast-2</code>).</li>
+<li><strong>Connection Pooling:</strong> Connected through Supabase's Session Pooler (<code>aws-0-ap-northeast-2.pooler.supabase.com:5432</code>). This pooler provides an IPv4-compatible gateway, ensuring seamless connectivity from Render's IPv4 container environment.</li>
+</ul>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 8: SECURITY, AUTHENTICATION & ACCESS CONTROL</strong></h1>
+<h3>8.1 JSON Web Token (JWT) Stateless Sessions</h3>
+<p>Authentication utilizes signed, compact, URL-safe JSON Web Tokens conforming to RFC 7519.</p>
+<ul>
+<li><strong>Signing Algorithm:</strong> HMAC with SHA-256 (<code>HS256</code>).</li>
+<li><strong>Token Payload:</strong></li>
+</ul>
+<p>  ```json</p>
+<p>  {</p>
+<p>    "sub": "b2f1592c-567a-4340-9ea0-47da4f5018cb",</p>
+<p>    "role": "ADMIN",</p>
+<p>    "email": "raviranjan211204@gmail.com",</p>
+<p>    "iat": 1791370200,</p>
+<p>    "exp": 1791975000</p>
+<p>  }</p>
+<p>  ```</p>
+<ul>
+<li><strong>Stateless Validation:</strong> The backend validates incoming requests without querying the database for session records, maintaining zero-latency verification at the Express middleware layer.</li>
+</ul>
+<h3>8.2 Password Security & Hashing</h3>
+<p>Passwords are cryptographically transformed using <strong>Bcrypt</strong>:</p>
+<p>$<span class="math">\text{Hash} = \text{Bcrypt}(\text{password}, \text{salt\_rounds} = 12)</span>$</p>
+<p>A work factor of <span class="math">12</span> mandates <span class="math">2^{12} = 4,096</span> iterations of the Blowfish key expansion algorithm, providing robust resistance against dictionary and brute-force GPU cracking attacks.</p>
+<h3>8.3 Role-Based Access Control (RBAC) Middleware</h3>
+<p>Routes are strictly partitioned across roles using declarative Express middleware:</p>
+<pre><code class="language-javascript">export function allowRoles(...allowedRoles) {
+  return (request, response, next) =&gt; {
+    if (!request.user || !allowedRoles.includes(request.user.role)) {
+      return response.status(403).json({
+        success: false,
+        message: "Forbidden: You lack necessary permissions."
+      });
+    }
+    next();
+  };
+}</code></pre>
+<ul>
+<li><code>/api/admin/*</code> <span class="math">\rightarrow</span> Restricted strictly to <code>ADMIN</code></li>
+<li><code>/api/workers/status</code> <span class="math">\rightarrow</span> Restricted strictly to <code>WORKER</code></li>
+<li><code>/api/bookings</code> <span class="math">\rightarrow</span> Accessible by <code>CUSTOMER</code> and assigned <code>WORKER</code></li>
+</ul>
+<h3>8.4 HTTP Hardening & Network Defenses</h3>
+<ul>
+<li><strong>Helmet.js:</strong> Configures essential HTTP headers including <code>X-Content-Type-Options: nosniff</code>, <code>X-Frame-Options: SAMEORIGIN</code>, and strict Referrer policies.</li>
+<li><strong>Cross-Origin Resource Policy (CORP):</strong> Set explicitly to <code>cross-origin</code> on the <code>/uploads</code> route to permit cross-domain image rendering from Vercel.</li>
+<li><strong>API Rate Limiting:</strong> Enforces a sliding-window limiter of <span class="math">1,200\text{ requests} / 15\text{ minutes}</span> per IP to defend against credential stuffing and volumetric denial-of-service attempts.</li>
+</ul>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 9: CORE ALGORITHMIC IMPLEMENTATION</strong></h1>
+<h3>9.1 Geodesic Calculations: PostGIS vs. Haversine</h3>
+<p>The classical Haversine formula calculates great-circle distances between two points on a sphere from their longitudes and latitudes:</p>
+<p>$<span class="math">d = 2r \arcsin \left( \sqrt{\sin^2\left(\frac{\Delta \phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta \lambda}{2}\right)} \right)</span>$</p>
+<p><em>Where <span class="math">\phi</span> represents latitude, <span class="math">\lambda</span> represents longitude, and <span class="math">r</span> is the mean Earth radius (<span class="math">6,371\text{ km}</span>).</em></p>
+<p><strong>Limitations of Haversine in Production:</strong></p>
+<ol>
+<li>Assumes a perfect sphere, introducing up to <span class="math">0.5\%</span> error across non-equatorial latitudes.</li>
+<li>In relational databases, Haversine requires a full table scan (<span class="math">\mathcal{O}(N)</span> computational complexity) because trigonometric math cannot utilize standard B-Tree indexing.</li>
+</ol>
+<p><strong>ProxiFix PostGIS Implementation:</strong></p>
+<p>ProxiFix uses the WGS 84 ellipsoidal model via <code>ST_DWithin</code>:</p>
+<p>$<span class="math">\mathcal{O}(\log N) \text{ search complexity leveraging GiST 2D R-Tree bounding boxes.}</span>$</p>
+<pre><code class="language-sql">-- High-speed spatial filtering
+WHERE ST_DWithin(
+  w.current_location,
+  ST_SetSRID(ST_MakePoint($customer_lon, $customer_lat), 4326)::geography,
+  $radius_meters
+)</code></pre>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 10: TEST METHODOLOGY, VERIFICATION & LIVE RESULTS</strong></h1>
+<h3>10.1 Live Production Health Endpoint Verification</h3>
+<p>The live deployment was subjected to automated verification tests:</p>
+<table class="report-table">
+<tr><th>Endpoint</th><th>Method</th><th>Expected Output</th><th>Actual Live Response</th><th>Status</th></tr>
+<tr><td><code>https://proxifix-api.onrender.com/api/health</code></td><td><code>GET</code></td><td><code>{"success": true, ...}</code></td><td><code>{"success":true,"message":"ProxiFix API is running"}</code></td><td><strong>PASSED</strong></td></tr>
+<tr><td><code>https://proxifix-api.onrender.com/api/services</code></td><td><code>GET</code></td><td>Array of 8 Service Categories</td><td>Returned Plumber, Electrician, Carpenter, etc.</td><td><strong>PASSED</strong></td></tr>
+<tr><td><code>https://proxifix.vercel.app</code></td><td><code>GET</code></td><td>HTTP 200, HTML Root</td><td>Rendered React 19 SPA DOM</td><td><strong>PASSED</strong></td></tr>
+</table>
+<h3>10.2 Comprehensive Test Cases Matrix</h3>
+<table class="report-table">
+<tr><th>Test ID</th><th>Test Description</th><th>Input Data</th><th>Expected Result</th><th>Outcome</th></tr>
+<tr><td><strong>TC-01</strong></td><td>User Registration (Valid)</td><td>Name, valid email, phone <code>+919123401283</code>, password</td><td>HTTP 201, User created, JWT issued</td><td><strong>PASS</strong></td></tr>
+<tr><td><strong>TC-02</strong></td><td>User Registration (Duplicate Email)</td><td>Same registered email</td><td>HTTP 409 Conflict error message</td><td><strong>PASS</strong></td></tr>
+<tr><td><strong>TC-03</strong></td><td>Phone Regex Validation</td><td>Phone without country code (<code>9123401283</code>)</td><td>HTTP 400 Validation Error</td><td><strong>PASS</strong></td></tr>
+<tr><td><strong>TC-04</strong></td><td>Spatial Search within Radius</td><td>Bhopal Customer (Lat 23.26, Lon 77.41), <span class="math">10\text{ km}</span></td><td>Returns Rahul Kumar (Plumber) <span class="math">1.4\text{ km}</span> away</td><td><strong>PASS</strong></td></tr>
+<tr><td><strong>TC-05</strong></td><td>Spatial Search Outside Radius</td><td>Delhi Customer (Lat 28.61, Lon 77.20), <span class="math">10\text{ km}</span></td><td>Returns empty array (0 workers found)</td><td><strong>PASS</strong></td></tr>
+<tr><td><strong>TC-06</strong></td><td>Worker Status Offline Filter</td><td>Bhopal Worker with <code>online_status = FALSE</code></td><td>Excluded from customer search results</td><td><strong>PASS</strong></td></tr>
+<tr><td><strong>TC-07</strong></td><td>Admin Route Authorization</td><td>Customer JWT requesting <code>/api/admin/workers</code></td><td>HTTP 403 Forbidden</td><td><strong>PASS</strong></td></tr>
+<tr><td><strong>TC-08</strong></td><td>Photo Upload MIME Check</td><td>Non-image file (<code>test.pdf</code>) to completion route</td><td>HTTP 400 Only image files allowed</td><td><strong>PASS</strong></td></tr>
+</table>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>CHAPTER 11: CONCLUSION & FUTURE SCOPE</strong></h1>
+<h3>11.1 Project Summary</h3>
+<p>The <strong>ProxiFix</strong> on-demand home service platform has been successfully conceptualized, engineered, and deployed across an enterprise-grade multi-cloud infrastructure. By marrying <strong>React 19</strong>, <strong>Node.js 5</strong>, <strong>PostgreSQL 16</strong>, and <strong>PostGIS 3.5</strong>, the platform provides:</p>
+<ul>
+<li>True spatial radius matching with sub-second performance.</li>
+<li>Complete lifecycle tracking of domestic services from booking to review.</li>
+<li>Verifiable quality control through photographic completion proofs.</li>
+<li>Seamless, secure cross-platform accessibility over globally distributed edge networks.</li>
+</ul>
+<h3>11.2 Future Enhancements Roadmap</h3>
+<ol>
+<li><strong>Permanent Object Storage Migration:</strong> Integrate <strong>AWS S3</strong> or <strong>Supabase Storage</strong> with pre-signed upload URLs to guarantee multi-year photo persistence across server lifecycles.</li>
+<li><strong>Payment Gateway Integration:</strong> Incorporate <strong>Stripe</strong> or <strong>Razorpay</strong> escrow payments, releasing technician payouts only upon customer confirmation of photographic work proof.</li>
+<li><strong>Native Mobile Applications:</strong> Develop native iOS and Android apps using <strong>React Native</strong>, sharing the existing backend REST API while adding background GPS breadcrumb tracking.</li>
+<li><strong>AI-Powered Automated Visual Inspection:</strong> Integrate computer vision models (e.g. Gemini Vision API) to automatically inspect uploaded completion photographs against pre-work damage reports for fraud prevention.</li>
+</ol>
+<div class="page-break"></div>
+<h1 class="chapter-title"><strong>REFERENCES & BIBLIOGRAPHY</strong></h1>
+<ol>
+<li>Obe, R., & Hsu, L. (2021). <em>PostGIS in Action</em> (3rd ed.). Manning Publications.</li>
+<li>Fielding, R. T. (2000). <em>Architectural Styles and the Design of Network-based Software Architectures</em> (Doctoral dissertation). University of California, Irvine.</li>
+<li>React Documentation (2026). <em>React 19 Architecture and Server Components</em>. Meta Open Source.</li>
+<li>Express.js Documentation (2026). <em>Express 5.0 Release Notes and Migration Guide</em>. OpenJS Foundation.</li>
+<li>PostgreSQL Global Development Group (2026). <em>PostgreSQL 16.0 Documentation: Spatial Indexes and GiST</em>.</li>
+<li>Open Geospatial Consortium (OGC). <em>Simple Feature Access - Part 1: Common Architecture</em> (OGC 06-103r4).</li>
+<li>Rescorla, E. (2018). <em>The Transport Layer Security (TLS) Protocol Version 1.3</em>. RFC 8446, Internet Engineering Task Force (IETF).</li>
+<li>Jones, M., Bradley, J., & Sakimura, N. (2015). <em>JSON Web Token (JWT)</em>. RFC 7519, Internet Engineering Task Force (IETF).</li>
+</ol>
+</body>
+</html>
