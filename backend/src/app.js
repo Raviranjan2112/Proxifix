@@ -65,17 +65,30 @@ app.use("/api/notifications", notificationsRoutes);
 
 // The production build is served by the API server. This lets one Cloudflare
 // Tunnel hostname serve the React application, API, uploads, and SPA routes.
-app.use(express.static(frontendBuildDirectory));
+import { existsSync } from "node:fs";
 
-app.get("/{*path}", (request, response, next) => {
-  if (request.path.startsWith("/api") || request.path.startsWith("/uploads")) {
-    return next();
-  }
+// The production build is served if it exists. Otherwise, provide API root info.
+if (existsSync(resolve(frontendBuildDirectory, "index.html"))) {
+  app.use(express.static(frontendBuildDirectory));
 
-  return response.sendFile(resolve(frontendBuildDirectory, "index.html"), (error) => {
-    if (error) next(error);
+  app.get("/{*path}", (request, response, next) => {
+    if (request.path.startsWith("/api") || request.path.startsWith("/uploads")) {
+      return next();
+    }
+
+    return response.sendFile(resolve(frontendBuildDirectory, "index.html"), (error) => {
+      if (error) next(error);
+    });
   });
-});
+} else {
+  app.get("/", (request, response) => {
+    response.json({
+      success: true,
+      message: "ProxiFix API server is running.",
+      health: "/api/health"
+    });
+  });
+}
 
 app.use((request, response) => {
   response.status(404).json({

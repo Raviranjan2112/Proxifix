@@ -19,10 +19,24 @@ const migrationFiles = (await readdir(migrationDirectory))
   .sort();
 
 try {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS schema_migrations (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) UNIQUE NOT NULL,
+      applied_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+
   for (const migrationFile of migrationFiles) {
-    const migrationSql = await readFile(resolve(migrationDirectory, migrationFile), "utf8");
-    await pool.query(migrationSql);
-    console.log(`Applied ${migrationFile}`);
+    const check = await pool.query("SELECT 1 FROM schema_migrations WHERE name = $1", [migrationFile]);
+    if (check.rows.length === 0) {
+      const migrationSql = await readFile(resolve(migrationDirectory, migrationFile), "utf8");
+      await pool.query(migrationSql);
+      await pool.query("INSERT INTO schema_migrations (name) VALUES ($1)", [migrationFile]);
+      console.log(`Applied migration: ${migrationFile}`);
+    } else {
+      console.log(`Migration already applied: ${migrationFile}`);
+    }
   }
 
   console.log("ProxiFix database migrations completed successfully.");
