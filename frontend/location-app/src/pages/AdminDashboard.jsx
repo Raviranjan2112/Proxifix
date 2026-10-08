@@ -41,8 +41,8 @@ export default function AdminDashboard() {
   const [ipCache, setIpCache] = useState({});
 
   function calculatePopoverPosition(rect) {
-    const popWidth = 340;
-    const popHeight = 310;
+    const popWidth = 370;
+    const popHeight = 420;
     
     // Center horizontally on the clicked/hovered badge
     let x = rect.left + rect.width / 2 - popWidth / 2;
@@ -472,7 +472,7 @@ export default function AdminDashboard() {
                 position: "fixed",
                 top: `${ipPopover.y}px`,
                 left: `${ipPopover.x}px`,
-                width: "340px",
+                width: "370px",
                 maxWidth: "calc(100vw - 32px)",
                 background: "#0f172a",
                 color: "#f8fafc",
@@ -526,40 +526,98 @@ export default function AdminDashboard() {
               </div>
 
               {ipPopover.loading ? (
-                <div style={{ padding: "12px 0", textAlign: "center", color: "#94a3b8" }}>
-                  <span>🔍 Tracing ISP, Geolocation & Trail...</span>
+                <div style={{ padding: "14px 0", textAlign: "center", color: "#94a3b8" }}>
+                  <span>🔍 Tracing Layer 1 Network & Layer 2 GPS Trail...</span>
                 </div>
               ) : ipPopover.data ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <div>
-                    <span style={{ color: "#94a3b8" }}>📍 Location: </span>
-                    <strong style={{ color: "#f1f5f9" }}>
-                      {[ipPopover.data.geo?.city, ipPopover.data.geo?.region, ipPopover.data.geo?.country].filter(Boolean).join(", ") || "Localhost"}
-                    </strong>
-                  </div>
-                  <div>
-                    <span style={{ color: "#94a3b8" }}>🌐 ISP / Network: </span>
-                    <strong style={{ color: "#f1f5f9" }}>{ipPopover.data.geo?.isp || "Internal Loopback"}</strong>
-                  </div>
-                  <div>
-                    <span style={{ color: "#94a3b8" }}>🧭 Coordinates: </span>
-                    <span style={{ color: "#cbd5e1", fontFamily: "monospace", fontSize: "0.78rem" }}>
-                      {ipPopover.data.geo?.coordinates || "Host System"}
-                    </span>
-                  </div>
-                  <div>
-                    <span style={{ color: "#94a3b8" }}>🛡️ Threat Status: </span>
-                    <span style={{ color: "#4ade80", fontWeight: "bold" }}>
-                      {ipPopover.data.geo?.threatLevel || "Low / Trusted"}
-                    </span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {/* LAYER 1: NETWORK IP GEOLOCATION */}
+                  <div style={{ background: "#1e293b", padding: "10px 12px", borderRadius: "8px", border: "1px solid #334155" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                      <span style={{ fontSize: "0.76rem", fontWeight: "bold", color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                        🌐 Layer 1: Network IP Geolocation
+                      </span>
+                      <span style={{ fontSize: "0.68rem", padding: "1px 6px", borderRadius: "4px", background: "#0369a1", color: "#e0f2fe", fontWeight: "600" }}>
+                        Approx (~2-10 km)
+                      </span>
+                    </div>
+                    <div style={{ color: "#f1f5f9", fontSize: "0.8rem", lineHeight: "1.4" }}>
+                      <div>📍 <strong>Location:</strong> {[ipPopover.data.geo?.city, ipPopover.data.geo?.region, ipPopover.data.geo?.country].filter(Boolean).join(", ") || "Localhost Host"}</div>
+                      <div>🏢 <strong>ISP Provider:</strong> {ipPopover.data.geo?.isp || "Internal Loopback Network"}</div>
+                    </div>
+                    {ipPopover.data.geo?.mapsUrl && (
+                      <a
+                        href={ipPopover.data.geo.mapsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          marginTop: "6px",
+                          color: "#38bdf8",
+                          fontSize: "0.76rem",
+                          fontWeight: "600",
+                          textDecoration: "none"
+                        }}
+                      >
+                        🗺️ Open Network ISP Location (Maps) ↗
+                      </a>
+                    )}
                   </div>
 
-                  <div style={{ borderTop: "1px solid #334155", marginTop: "6px", paddingTop: "8px" }}>
-                    <div style={{ fontSize: "0.74rem", color: "#94a3b8", fontWeight: "600", marginBottom: "4px" }}>
+                  {/* LAYER 2: HARDWARE DEVICE GPS */}
+                  <div style={{ background: "#064e3b", padding: "10px 12px", borderRadius: "8px", border: "1px solid #059669" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "6px" }}>
+                      <span style={{ fontSize: "0.76rem", fontWeight: "bold", color: "#34d399", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                        📍 Layer 2: Real Hardware Device GPS
+                      </span>
+                      <span style={{ fontSize: "0.68rem", padding: "1px 6px", borderRadius: "4px", background: "#047857", color: "#a7f3d0", fontWeight: "600" }}>
+                        Exact Pinpoint
+                      </span>
+                    </div>
+                    {ipPopover.data.deviceGps ? (
+                      <div style={{ color: "#ecfdf5", fontSize: "0.8rem", lineHeight: "1.4" }}>
+                        <div>🎯 <strong>GPS Coordinates:</strong> <span style={{ fontFamily: "monospace", color: "#a7f3d0" }}>{ipPopover.data.deviceGps.lat}° N, {ipPopover.data.deviceGps.lng}° E</span></div>
+                        <div>👤 <strong>Linked Device:</strong> {ipPopover.data.deviceGps.name} ({ipPopover.data.deviceGps.role})</div>
+                        <div>📧 <strong>Account:</strong> {ipPopover.data.deviceGps.email}</div>
+                        <a
+                          href={ipPopover.data.deviceGps.mapsUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "5px",
+                            marginTop: "8px",
+                            padding: "6px 12px",
+                            borderRadius: "6px",
+                            background: "#10b981",
+                            color: "#064e3b",
+                            fontSize: "0.78rem",
+                            fontWeight: "bold",
+                            textDecoration: "none",
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                          }}
+                        >
+                          🎯 Open Exact Device Pinpoint (Google Maps) ↗
+                        </a>
+                      </div>
+                    ) : (
+                      <div style={{ color: "#a7f3d0", fontSize: "0.76rem" }}>
+                        ℹ️ Hardware GPS is captured when worker/customer grants location permission or starts an active service.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* PLATFORM AUDIT TRAIL */}
+                  <div style={{ borderTop: "1px solid #334155", paddingTop: "8px" }}>
+                    <div style={{ fontSize: "0.74rem", color: "#94a3b8", fontWeight: "600", marginBottom: "3px" }}>
                       📊 PLATFORM AUDIT TRAIL:
                     </div>
                     <div style={{ color: "#e2e8f0" }}>
-                      • Total Recorded Actions: <strong style={{ color: "#38bdf8" }}>{ipPopover.data.stats?.totalEvents || 1}</strong>
+                      • Recorded Events: <strong style={{ color: "#38bdf8" }}>{ipPopover.data.stats?.totalEvents || 1}</strong>
+                      {" | "} Threat: <strong style={{ color: "#4ade80" }}>{ipPopover.data.geo?.threatLevel || "Low / Trusted"}</strong>
                     </div>
                     <div style={{ color: "#e2e8f0" }}>
                       • Linked Accounts: <strong style={{ color: "#a78bfa" }}>{(ipPopover.data.stats?.users || []).join(", ") || "Current User"}</strong>
@@ -570,32 +628,6 @@ export default function AdminDashboard() {
                       </div>
                     )}
                   </div>
-
-                  {ipPopover.data.mapsUrl && (
-                    <a
-                      href={ipPopover.data.mapsUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        marginTop: "10px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "6px",
-                        padding: "7px 12px",
-                        borderRadius: "6px",
-                        background: "#2563eb",
-                        color: "#ffffff",
-                        textDecoration: "none",
-                        fontWeight: "600",
-                        fontSize: "0.8rem",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                        transition: "background 0.15s ease",
-                      }}
-                    >
-                      📍 View Location on Google Maps ↗
-                    </a>
-                  )}
                 </div>
               ) : (
                 <div style={{ color: "#f87171" }}>Failed to trace IP details</div>

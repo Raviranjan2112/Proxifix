@@ -347,8 +347,11 @@ export async function getIpTrackingDetails(request, response) {
               flag: data.flag?.emoji || "🌐",
               isp: data.connection?.isp || data.connection?.org || "Internet Service Provider",
               networkType: data.type || (ip.includes(":") ? "IPv6 Public" : "IPv4 Public"),
+              lat: data.latitude,
+              lon: data.longitude,
               coordinates: `${data.latitude || 0}° N, ${data.longitude || 0}° E`,
               threatLevel: "Verified Public Route",
+              mapsUrl: (data.latitude && data.longitude) ? `https://www.google.com/maps?q=${data.latitude},${data.longitude}` : null,
               isPrivate: false
             };
             ipGeoCache.set(ip, geoData);
