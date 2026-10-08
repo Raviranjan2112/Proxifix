@@ -597,6 +597,60 @@ export function allowRoles(...allowedRoles) {
 * **Cross-Origin Resource Policy (CORP):** Set explicitly to `cross-origin` on the `/uploads` route to permit cross-domain image rendering from Vercel.
 * **API Rate Limiting:** Enforces a sliding-window limiter of $1,200\text{ requests} / 15\text{ minutes}$ per IP to defend against credential stuffing and volumetric denial-of-service attempts.
 
+### 8.5 STRIDE Threat Model Implementation
+ProxiFix implements defense-in-depth across each category of the Microsoft STRIDE model:
+
+1. **S — Spoofing (Identity & Authenticity):**
+   * *Threat:* Attacker forges an identity token or worker fakes GPS coordinates.
+   * *Mitigation:* Cryptographically signed JWTs using HMAC-SHA256 (`HS256`) with a server secret; Zod validates GPS boundaries (`latitude: [-90, 90]`, `longitude: [-180, 180]`).
+2. **T — Tampering (Data Integrity):**
+   * *Threat:* Client alters the service fee in the JSON request payload or injects malicious SQL.
+   * *Mitigation:* Authoritative server pricing ignores client charges; all database interactions utilize parameterized placeholders (`$1, $2`) preventing SQL injection. Uploaded photos are renamed with random UUIDs.
+3. **R — Repudiation (Non-Repudiation & Accountability):**
+   * *Threat:* Worker disputes arriving late or customer denies placing a service request.
+   * *Mitigation:* Real-time immutable audit trail recorded in the `audit_logs` table. Bookings record immutable timestamps (`arrived_at = NOW()`) and enforce mandatory photo evidence upload before completion.
+4. **I — Information Disclosure (Confidentiality & Privacy):**
+   * *Threat:* Malicious scrapers harvest customer physical addresses or database traffic is intercepted.
+   * *Mitigation:* Proximity privacy masks customer street addresses until a worker accepts the booking. Database connections strictly enforce TLS 1.3 (`DATABASE_SSL=true`).
+5. **D — Denial of Service (Availability):**
+   * *Threat:* Spatial query flooding exhausts database CPU.
+   * *Mitigation:* PostGIS 2D R-Tree GiST spatial indexing reduces search complexity to $\mathcal{O}(\log N)$. Express sliding rate limiter throttles traffic to 1,200 requests/15 minutes.
+6. **E — Elevation of Privilege (Authorization):**
+   * *Threat:* Customer invokes administrative approval endpoints.
+   * *Mitigation:* Role-Based Access Control (`allowRoles("ADMIN")`) verifies JWT claims; data ownership checks (`WHERE customer_id = $1 OR worker_id = $1`) prevent Insecure Direct Object References (IDOR).
+
+### 8.6 DREAD Quantitative Risk Scoring Matrix
+
+$$\text{Risk Score} = \frac{\text{Damage} + \text{Reproducibility} + \text{Exploitability} + \text{Affected Users} + \text{Discoverability}}{5}$$
+
+| STRIDE Vector | Threat Scenario | D | R | E | A | D | Score | Risk Level | Mitigation Strategy |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
+| **S (Spoofing)** | JWT Forgery / Impersonation | 9 | 2 | 2 | 10 | 2 | **5.0** | 🟡 Medium | HMAC-SHA256 signature with 256-bit secret key |
+| **S (Spoofing)** | GPS Location Coordinates Spoofing | 6 | 7 | 6 | 4 | 5 | **5.6** | 🟡 Medium | Zod coordinate schema range assertions |
+| **T (Tampering)** | Booking Total Fee Tampering | 8 | 8 | 7 | 8 | 7 | **7.6** | 🔴 High | Server-side authoritative pricing lookup |
+| **T (Tampering)** | SQL Injection via Search Filters | 10 | 3 | 2 | 10 | 3 | **5.6** | 🟡 Medium | Parameterized `$1, $2` queries across all routes |
+| **T (Tampering)** | Malicious Executable Photo Upload | 9 | 4 | 3 | 10 | 4 | **6.0** | 🟡 Medium | Multer strict MIME-whitelisting + UUID renaming |
+| **R (Repudiation)**| Disputing Service Completion | 6 | 6 | 5 | 4 | 5 | **5.2** | 🟡 Medium | Mandatory photo proof pipeline + `arrived_at` |
+| **I (Information)**| Customer Street Address Scraping | 8 | 7 | 5 | 9 | 6 | **7.0** | 🔴 High | Proximity privacy: address hidden until accept |
+| **D (DoS)** | PostGIS Spatial Scan Flooding | 7 | 8 | 7 | 10 | 7 | **7.8** | 🔴 High | GiST 2D R-Tree spatial indexing + Rate Limiting |
+| **E (Elevation)** | Customer Executing Admin Actions | 9 | 2 | 2 | 10 | 2 | **5.0** | 🟡 Medium | `allowRoles("ADMIN")` RBAC middleware verification |
+
+### 8.7 Non-Repudiation Audit Logging Schema
+The dedicated `audit_logs` table provides permanent accountability:
+
+```sql
+CREATE TABLE audit_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  user_email VARCHAR(255),
+  action VARCHAR(100) NOT NULL,
+  threat_category VARCHAR(20) NOT NULL DEFAULT 'R',
+  details JSONB DEFAULT '{}'::jsonb,
+  ip_address VARCHAR(45),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
 ---
 
 # **CHAPTER 9: CORE ALGORITHMIC IMPLEMENTATION**

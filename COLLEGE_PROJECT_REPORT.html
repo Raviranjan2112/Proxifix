@@ -726,6 +726,76 @@ ORDER BY distance_km ASC;</code></pre>
 <li><strong>Cross-Origin Resource Policy (CORP):</strong> Set explicitly to <code>cross-origin</code> on the <code>/uploads</code> route to permit cross-domain image rendering from Vercel.</li>
 <li><strong>API Rate Limiting:</strong> Enforces a sliding-window limiter of <span class="math">1,200\text{ requests} / 15\text{ minutes}</span> per IP to defend against credential stuffing and volumetric denial-of-service attempts.</li>
 </ul>
+<h3>8.5 STRIDE Threat Model Implementation</h3>
+<p>ProxiFix implements defense-in-depth across each category of the Microsoft STRIDE model:</p>
+<ol>
+<li><strong>S — Spoofing (Identity & Authenticity):</strong></li>
+</ol>
+<ul>
+<li><em>Threat:</em> Attacker forges an identity token or worker fakes GPS coordinates.</li>
+<li><em>Mitigation:</em> Cryptographically signed JWTs using HMAC-SHA256 (<code>HS256</code>) with a server secret; Zod validates GPS boundaries (<code>latitude: [-90, 90]</code>, <code>longitude: [-180, 180]</code>).</li>
+</ul>
+<ol>
+<li><strong>T — Tampering (Data Integrity):</strong></li>
+</ol>
+<ul>
+<li><em>Threat:</em> Client alters the service fee in the JSON request payload or injects malicious SQL.</li>
+<li><em>Mitigation:</em> Authoritative server pricing ignores client charges; all database interactions utilize parameterized placeholders (<code><span class="math">1, </span>2</code>) preventing SQL injection. Uploaded photos are renamed with random UUIDs.</li>
+</ul>
+<ol>
+<li><strong>R — Repudiation (Non-Repudiation & Accountability):</strong></li>
+</ol>
+<ul>
+<li><em>Threat:</em> Worker disputes arriving late or customer denies placing a service request.</li>
+<li><em>Mitigation:</em> Real-time immutable audit trail recorded in the <code>audit_logs</code> table. Bookings record immutable timestamps (<code>arrived_at = NOW()</code>) and enforce mandatory photo evidence upload before completion.</li>
+</ul>
+<ol>
+<li><strong>I — Information Disclosure (Confidentiality & Privacy):</strong></li>
+</ol>
+<ul>
+<li><em>Threat:</em> Malicious scrapers harvest customer physical addresses or database traffic is intercepted.</li>
+<li><em>Mitigation:</em> Proximity privacy masks customer street addresses until a worker accepts the booking. Database connections strictly enforce TLS 1.3 (<code>DATABASE_SSL=true</code>).</li>
+</ul>
+<ol>
+<li><strong>D — Denial of Service (Availability):</strong></li>
+</ol>
+<ul>
+<li><em>Threat:</em> Spatial query flooding exhausts database CPU.</li>
+<li><em>Mitigation:</em> PostGIS 2D R-Tree GiST spatial indexing reduces search complexity to <span class="math">\mathcal{O}(\log N)</span>. Express sliding rate limiter throttles traffic to 1,200 requests/15 minutes.</li>
+</ul>
+<ol>
+<li><strong>E — Elevation of Privilege (Authorization):</strong></li>
+</ol>
+<ul>
+<li><em>Threat:</em> Customer invokes administrative approval endpoints.</li>
+<li><em>Mitigation:</em> Role-Based Access Control (<code>allowRoles("ADMIN")</code>) verifies JWT claims; data ownership checks (<code>WHERE customer_id = <span class="math">1 OR worker_id = </span>1</code>) prevent Insecure Direct Object References (IDOR).</li>
+</ul>
+<h3>8.6 DREAD Quantitative Risk Scoring Matrix</h3>
+<p>$<span class="math">\text{Risk Score} = \frac{\text{Damage} + \text{Reproducibility} + \text{Exploitability} + \text{Affected Users} + \text{Discoverability}}{5}</span>$</p>
+<table class="report-table">
+<tr><th>STRIDE Vector</th><th>Threat Scenario</th><th>D</th><th>R</th><th>E</th><th>A</th><th>D</th><th>Score</th><th>Risk Level</th><th>Mitigation Strategy</th></tr>
+<tr><td><strong>S (Spoofing)</strong></td><td>JWT Forgery / Impersonation</td><td>9</td><td>2</td><td>2</td><td>10</td><td>2</td><td><strong>5.0</strong></td><td>🟡 Medium</td><td>HMAC-SHA256 signature with 256-bit secret key</td></tr>
+<tr><td><strong>S (Spoofing)</strong></td><td>GPS Location Coordinates Spoofing</td><td>6</td><td>7</td><td>6</td><td>4</td><td>5</td><td><strong>5.6</strong></td><td>🟡 Medium</td><td>Zod coordinate schema range assertions</td></tr>
+<tr><td><strong>T (Tampering)</strong></td><td>Booking Total Fee Tampering</td><td>8</td><td>8</td><td>7</td><td>8</td><td>7</td><td><strong>7.6</strong></td><td>🔴 High</td><td>Server-side authoritative pricing lookup</td></tr>
+<tr><td><strong>T (Tampering)</strong></td><td>SQL Injection via Search Filters</td><td>10</td><td>3</td><td>2</td><td>10</td><td>3</td><td><strong>5.6</strong></td><td>🟡 Medium</td><td>Parameterized <code><span class="math">1, </span>2</code> queries across all routes</td></tr>
+<tr><td><strong>T (Tampering)</strong></td><td>Malicious Executable Photo Upload</td><td>9</td><td>4</td><td>3</td><td>10</td><td>4</td><td><strong>6.0</strong></td><td>🟡 Medium</td><td>Multer strict MIME-whitelisting + UUID renaming</td></tr>
+<tr><td><strong>R (Repudiation)</strong></td><td>Disputing Service Completion</td><td>6</td><td>6</td><td>5</td><td>4</td><td>5</td><td><strong>5.2</strong></td><td>🟡 Medium</td><td>Mandatory photo proof pipeline + <code>arrived_at</code></td></tr>
+<tr><td><strong>I (Information)</strong></td><td>Customer Street Address Scraping</td><td>8</td><td>7</td><td>5</td><td>9</td><td>6</td><td><strong>7.0</strong></td><td>🔴 High</td><td>Proximity privacy: address hidden until accept</td></tr>
+<tr><td><strong>D (DoS)</strong></td><td>PostGIS Spatial Scan Flooding</td><td>7</td><td>8</td><td>7</td><td>10</td><td>7</td><td><strong>7.8</strong></td><td>🔴 High</td><td>GiST 2D R-Tree spatial indexing + Rate Limiting</td></tr>
+<tr><td><strong>E (Elevation)</strong></td><td>Customer Executing Admin Actions</td><td>9</td><td>2</td><td>2</td><td>10</td><td>2</td><td><strong>5.0</strong></td><td>🟡 Medium</td><td><code>allowRoles("ADMIN")</code> RBAC middleware verification</td></tr>
+</table>
+<h3>8.7 Non-Repudiation Audit Logging Schema</h3>
+<p>The dedicated <code>audit_logs</code> table provides permanent accountability:</p>
+<pre><code class="language-sql">CREATE TABLE audit_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  user_email VARCHAR(255),
+  action VARCHAR(100) NOT NULL,
+  threat_category VARCHAR(20) NOT NULL DEFAULT 'R',
+  details JSONB DEFAULT '{}'::jsonb,
+  ip_address VARCHAR(45),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);</code></pre>
 <div class="page-break"></div>
 <h1 class="chapter-title"><strong>CHAPTER 9: CORE ALGORITHMIC IMPLEMENTATION</strong></h1>
 <h3>9.1 Geodesic Calculations: PostGIS vs. Haversine</h3>
