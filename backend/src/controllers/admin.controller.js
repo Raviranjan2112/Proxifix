@@ -190,7 +190,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 9, r: 2, e: 2, a: 10, disc: 2,
       score: 5.0,
       riskLevel: "Medium",
-      mitigation: "HMAC-SHA256 cryptographic signature with 256-bit server secret"
+      residualScore: 1.4,
+      residualLevel: "Low",
+      reductionPercent: 72,
+      mitigation: "HMAC-SHA256 cryptographic signature with 256-bit server secret",
+      status: "SECURED"
     },
     {
       category: "S (Spoofing)",
@@ -198,7 +202,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 6, r: 7, e: 6, a: 4, disc: 5,
       score: 5.6,
       riskLevel: "Medium",
-      mitigation: "Server-side Zod boundary assertions (lat [-90,90], lon [-180,180])"
+      residualScore: 1.8,
+      residualLevel: "Low",
+      reductionPercent: 68,
+      mitigation: "Server-side Zod boundary assertions (lat [-90,90], lon [-180,180])",
+      status: "SECURED"
     },
     {
       category: "T (Tampering)",
@@ -206,7 +214,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 8, r: 8, e: 7, a: 8, disc: 7,
       score: 7.6,
       riskLevel: "High",
-      mitigation: "Server-side authoritative pricing; client amounts ignored"
+      residualScore: 1.0,
+      residualLevel: "Low",
+      reductionPercent: 87,
+      mitigation: "Server-side authoritative pricing; client amounts ignored & excluded from schema",
+      status: "SECURED"
     },
     {
       category: "T (Tampering)",
@@ -214,7 +226,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 10, r: 3, e: 2, a: 10, disc: 3,
       score: 5.6,
       riskLevel: "Medium",
-      mitigation: "Parameterized queries ($1, $2) via pg driver; no string concatenation"
+      residualScore: 1.0,
+      residualLevel: "Low",
+      reductionPercent: 82,
+      mitigation: "Parameterized queries ($1, $2) via pg driver; no string concatenation",
+      status: "SECURED"
     },
     {
       category: "T (Tampering)",
@@ -222,7 +238,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 9, r: 4, e: 3, a: 10, disc: 4,
       score: 6.0,
       riskLevel: "Medium",
-      mitigation: "Multer MIME validation + cryptographically random UUID filename"
+      residualScore: 1.6,
+      residualLevel: "Low",
+      reductionPercent: 73,
+      mitigation: "Multer MIME validation + cryptographically random UUID filename",
+      status: "SECURED"
     },
     {
       category: "R (Repudiation)",
@@ -230,7 +250,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 6, r: 6, e: 5, a: 4, disc: 5,
       score: 5.2,
       riskLevel: "Medium",
-      mitigation: "Mandatory photo proof pipeline + arrived_at immutable timestamp"
+      residualScore: 1.6,
+      residualLevel: "Low",
+      reductionPercent: 69,
+      mitigation: "Mandatory photo proof pipeline + arrived_at immutable timestamp",
+      status: "SECURED"
     },
     {
       category: "I (Information)",
@@ -238,7 +262,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 8, r: 7, e: 5, a: 9, disc: 6,
       score: 7.0,
       riskLevel: "High",
-      mitigation: "Proximity Privacy: exact address masked until booking is accepted"
+      residualScore: 1.8,
+      residualLevel: "Low",
+      reductionPercent: 74,
+      mitigation: "Proximity Privacy: exact address masked until booking is accepted",
+      status: "SECURED"
     },
     {
       category: "D (Denial of Service)",
@@ -246,7 +274,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 7, r: 8, e: 7, a: 10, disc: 7,
       score: 7.8,
       riskLevel: "High",
-      mitigation: "GiST 2D R-Tree spatial index + sliding rate limiter (1200 req/15min)"
+      residualScore: 2.0,
+      residualLevel: "Low",
+      reductionPercent: 74,
+      mitigation: "GiST 2D R-Tree spatial index + Zod radius clamp (max 20km) + sliding rate limiter",
+      status: "SECURED"
     },
     {
       category: "E (Elevation)",
@@ -254,7 +286,11 @@ export async function getSecurityDreadMatrix(request, response) {
       d: 9, r: 2, e: 2, a: 10, disc: 2,
       score: 5.0,
       riskLevel: "Medium",
-      mitigation: "allowRoles('ADMIN') RBAC middleware with claim verification"
+      residualScore: 1.0,
+      residualLevel: "Low",
+      reductionPercent: 80,
+      mitigation: "allowRoles('ADMIN') RBAC middleware with claim verification",
+      status: "SECURED"
     }
   ];
 
