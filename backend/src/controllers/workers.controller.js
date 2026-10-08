@@ -78,7 +78,8 @@ export async function getNearbyWorkers(request, response) {
           action: "CUSTOMER_GPS_SEARCH",
           threatCategory: "R",
           details: { service, radius, latitude, longitude },
-          ipAddress: request.ip
+          ipAddress: request.ip,
+          upsert: true
         });
       }
     } catch {
@@ -307,6 +308,22 @@ export async function updateMyLocation(request, response) {
 
     await client.query("COMMIT");
 
+    recordAuditLog({
+      userId: request.user.sub,
+      userEmail: request.user.email,
+      action: "WORKER_GPS_LOCATION",
+      threatCategory: "R",
+      details: {
+        role: "WORKER",
+        latitude: data.latitude,
+        longitude: data.longitude,
+        address: data.address || null,
+        city: data.city || null
+      },
+      ipAddress: request.ip,
+      upsert: true
+    });
+
     response.json({
       success: true,
       message: "Worker location updated."
@@ -388,6 +405,24 @@ export async function updateMyStatus(request, response) {
     }
 
     await client.query("COMMIT");
+
+    if (onlineStatus && latitude && longitude) {
+      recordAuditLog({
+        userId: request.user.sub,
+        userEmail: request.user.email,
+        action: "WORKER_GPS_LOCATION",
+        threatCategory: "R",
+        details: {
+          role: "WORKER",
+          onlineStatus,
+          availabilityStatus,
+          latitude,
+          longitude
+        },
+        ipAddress: request.ip,
+        upsert: true
+      });
+    }
 
     response.json({
       success: true,

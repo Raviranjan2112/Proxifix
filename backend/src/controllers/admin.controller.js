@@ -166,8 +166,12 @@ export async function getAuditLogs(request, response) {
   try {
     const result = await pool.query(
       `
-        SELECT id, user_id, user_email, action, threat_category, details, ip_address, created_at
-        FROM audit_logs
+        SELECT * FROM (
+          SELECT DISTINCT ON (COALESCE(user_email, ip_address, id::text), action)
+            id, user_id, user_email, action, threat_category, details, ip_address, created_at
+          FROM audit_logs
+          ORDER BY COALESCE(user_email, ip_address, id::text), action, created_at DESC
+        ) sub
         ORDER BY created_at DESC
         LIMIT 50
       `
