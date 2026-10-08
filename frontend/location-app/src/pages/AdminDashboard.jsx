@@ -606,7 +606,7 @@ export default function AdminDashboard() {
                   <th style={{ padding: "10px 14px" }}>User Email</th>
                   <th style={{ padding: "10px 14px" }}>IP Address</th>
                   <th style={{ padding: "10px 14px" }}>Details</th>
-                  <th style={{ padding: "10px 14px", textAlign: "center" }}>Account Action</th>
+                  <th style={{ padding: "10px 14px", textAlign: "center" }}>Account Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -734,34 +734,58 @@ export default function AdminDashboard() {
                               </button>
                             )}
                           </div>
-                        ) : log.target_user_id ? (
-                          <button
-                            type="button"
-                            onClick={() => handleBlockUser(log.target_user_id, log.user_email)}
-                            disabled={actionLoadingId === log.target_user_id}
-                            style={{
-                              background: "#fff1f2",
-                              border: "1px solid #fecdd3",
-                              color: "#e11d48",
-                              padding: "4px 10px",
-                              borderRadius: "6px",
-                              fontSize: "0.75rem",
-                              fontWeight: "bold",
-                              cursor: "pointer",
-                              transition: "all 0.15s ease",
+                        ) : (() => {
+                          const hasUnusualAlert = securityAlerts.some(
+                            (alert) => (alert.target_user_id && alert.target_user_id === log.target_user_id) ||
+                                       (alert.user_email && alert.user_email === log.user_email)
+                          );
+
+                          if (hasUnusualAlert && log.target_user_id) {
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => handleBlockUser(log.target_user_id, log.user_email)}
+                                disabled={actionLoadingId === log.target_user_id}
+                                style={{
+                                  background: "#fff1f2",
+                                  border: "1px solid #fecdd3",
+                                  color: "#e11d48",
+                                  padding: "4px 10px",
+                                  borderRadius: "6px",
+                                  fontSize: "0.75rem",
+                                  fontWeight: "bold",
+                                  cursor: "pointer",
+                                  transition: "all 0.15s ease",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px"
+                                }}
+                                title="Unusual activity detected! Click to permanently block this user from website"
+                                onMouseEnter={(e) => { e.currentTarget.style.background = "#e11d48"; e.currentTarget.style.color = "white"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = "#fff1f2"; e.currentTarget.style.color = "#e11d48"; }}
+                              >
+                                🛑 {actionLoadingId === log.target_user_id ? "Blocking..." : "Block User"}
+                              </button>
+                            );
+                          }
+
+                          return (
+                            <span style={{ 
+                              fontSize: "0.72rem", 
+                              fontWeight: "600", 
+                              color: "#166534", 
+                              background: "#f0fdf4", 
+                              padding: "3px 8px", 
+                              borderRadius: "4px",
+                              border: "1px solid #bbf7d0",
                               display: "inline-flex",
                               alignItems: "center",
                               gap: "4px"
-                            }}
-                            title="Permanently block this user from website"
-                            onMouseEnter={(e) => { e.currentTarget.style.background = "#e11d48"; e.currentTarget.style.color = "white"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = "#fff1f2"; e.currentTarget.style.color = "#e11d48"; }}
-                          >
-                            🛑 {actionLoadingId === log.target_user_id ? "Blocking..." : "Block User"}
-                          </button>
-                        ) : (
-                          <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>—</span>
-                        )}
+                            }}>
+                              🟢 Active
+                            </span>
+                          );
+                        })()}
                       </td>
                     </tr>
                   ))
