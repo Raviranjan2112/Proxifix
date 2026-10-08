@@ -374,10 +374,59 @@ export async function getIpTrackingDetails(request, response) {
       }
     }
 
+    // 3. Check if any user linked to this IP has registered hardware GPS coordinates
+    let deviceGps = null;
+    if (stats.users && stats.users.length > 0) {
+      try {
+        const gpsResult = await pool.query(
+          `
+            SELECT 
+              u.email,
+              u.name,
+              u.role,
+              COALESCE(ST_Y(w.current_location::geometry), ST_Y(c.current_location::geometry)) AS lat,
+              COALESCE(ST_X(w.current_location::geometry), ST_X(c.current_location::geometry)) AS lng
+            FROM users u
+            LEFT JOIN workers w ON w.user_id = u.id
+            LEFT JOIN customers c ON c.user_id = u.id
+            WHERE u.email = ANY($1) 
+              AND (w.current_location IS NOT NULL OR c.current_location IS NOT NULL)
+            LIMIT 1
+          `,
+          [stats.users]
+        );
+        if (gpsResult.rows.length > 0) {
+          const row = gpsResult.rows[0];
+          deviceGps = {
+            lat: Number(row.lat).toFixed(6),
+            lng: Number(row.lng).toFixed(6),
+            name: row.name,
+            role: row.role,
+            email: row.email,
+            mapsUrl: `https://www.google.com/maps?q=${row.lat},${row.lng}`
+          };
+        }
+      } catch (gpsErr) {
+        console.warn("GPS query error:", gpsErr.message);
+      }
+    }
+
+    let mapsUrl = null;
+    if (deviceGps) {
+      mapsUrl = deviceGps.mapsUrl;
+      if (geoData) {
+        geoData.coordinates = `${deviceGps.lat}° N, ${deviceGps.lng}° E (Device GPS)`;
+      }
+    } else if (geoData && geoData.lat && geoData.lon) {
+      mapsUrl = `https://www.google.com/maps?q=${geoData.lat},${geoData.lon}`;
+    }
+
     return response.json({
       success: true,
       ip: rawIp,
       geo: geoData,
+      deviceGps,
+      mapsUrl,
       stats: {
         totalEvents: stats.total_events || 0,
         totalUsers: stats.total_users || 0,

@@ -570,6 +570,32 @@ export default function AdminDashboard() {
                       </div>
                     )}
                   </div>
+
+                  {ipPopover.data.mapsUrl && (
+                    <a
+                      href={ipPopover.data.mapsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        marginTop: "10px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        padding: "7px 12px",
+                        borderRadius: "6px",
+                        background: "#2563eb",
+                        color: "#ffffff",
+                        textDecoration: "none",
+                        fontWeight: "600",
+                        fontSize: "0.8rem",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                        transition: "background 0.15s ease",
+                      }}
+                    >
+                      📍 View Location on Google Maps ↗
+                    </a>
+                  )}
                 </div>
               ) : (
                 <div style={{ color: "#f87171" }}>Failed to trace IP details</div>
