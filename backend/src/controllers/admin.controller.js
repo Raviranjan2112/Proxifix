@@ -166,19 +166,45 @@ export async function getAuditLogs(request, response) {
   try {
     const result = await pool.query(
       `
-        SELECT * FROM (
-          SELECT DISTINCT ON (COALESCE(user_email, ip_address, id::text), action)
+        SELECT 
+          sub.id,
+          sub.user_id,
+          sub.user_email,
+          sub.action,
+          sub.threat_category,
+          sub.details,
+          sub.ip_address,
+          sub.created_at,
+          COALESCE(
+            (sub.details->>'latitude')::numeric,
+            ST_Y(c.current_location::geometry),
+            ST_Y(w.current_location::geometry)
+          ) AS pin_lat,
+          COALESCE(
+            (sub.details->>'longitude')::numeric,
+            ST_X(c.current_location::geometry),
+            ST_X(w.current_location::geometry)
+          ) AS pin_lng
+        FROM (
+          SELECT DISTINCT ON (COALESCE(user_email, ip_address, id::text))
             id, user_id, user_email, action, threat_category, details, ip_address, created_at
           FROM audit_logs
-          ORDER BY COALESCE(user_email, ip_address, id::text), action, created_at DESC
+          ORDER BY COALESCE(user_email, ip_address, id::text), created_at DESC
         ) sub
-        ORDER BY created_at DESC
+        LEFT JOIN users u ON (u.email = sub.user_email OR u.id = sub.user_id)
+        LEFT JOIN customers c ON c.user_id = u.id
+        LEFT JOIN workers w ON w.user_id = u.id
+        ORDER BY sub.created_at DESC
         LIMIT 50
       `
     );
     return response.json({
       success: true,
-      logs: result.rows
+      logs: result.rows.map((row) => ({
+        ...row,
+        pin_lat: row.pin_lat ? Number(row.pin_lat) : null,
+        pin_lng: row.pin_lng ? Number(row.pin_lng) : null,
+      }))
     });
   } catch (error) {
     console.error("Failed to load audit logs:", error);

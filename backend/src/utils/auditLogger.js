@@ -27,22 +27,22 @@ export async function recordAuditLog({
       cleanIp = cleanIp.replace("::ffff:", "");
     }
 
-    // In-place update: if upsert is true and an existing log exists for this user & action,
-    // update details, IP, and timestamp instead of creating duplicate repetitive rows.
+    // In-place update: if upsert is true and an existing log exists for this user,
+    // update action, threat_category, details, IP, and timestamp instead of creating duplicate repetitive rows.
     if (upsert && (userEmail || userId || cleanIp)) {
       const updateQuery = `
         UPDATE audit_logs
         SET 
+          action = $6,
+          threat_category = $3,
           details = $1,
           ip_address = $2,
-          threat_category = $3,
           created_at = NOW()
         WHERE (
           (user_email IS NOT NULL AND user_email = $4)
           OR (user_id IS NOT NULL AND user_id = $5)
           OR (user_email IS NULL AND user_id IS NULL AND ip_address = $2)
         )
-        AND action = $6
         RETURNING id
       `;
       const updateResult = await pool.query(updateQuery, [

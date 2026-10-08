@@ -459,17 +459,26 @@ export default function AdminDashboard() {
                       <td style={{ padding: "10px 14px", fontSize: "0.8rem", color: "#334155" }}>
                         {(() => {
                           const d = log.details || {};
-                          if (d.latitude && d.longitude) {
+                          const lat = log.pin_lat ?? d.latitude;
+                          const lng = log.pin_lng ?? d.longitude;
+
+                          if (lat && lng) {
                             return (
                               <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                                 <span style={{ background: "#ecfdf5", color: "#047857", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", fontFamily: "monospace", fontSize: "0.76rem" }}>
-                                  📍 {Number(d.latitude).toFixed(4)}° N, {Number(d.longitude).toFixed(4)}° E
+                                  📍 {Number(lat).toFixed(4)}° N, {Number(lng).toFixed(4)}° E
                                 </span>
                                 {d.service && (
                                   <span style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "500", color: "#334155" }}>
                                     {d.service} ({d.radius || 10} km)
                                   </span>
                                 )}
+                                {d.role && (
+                                  <span style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", color: "#0f172a" }}>
+                                    {d.role}
+                                  </span>
+                                )}
+                                {d.name && <span style={{ color: "#475569" }}>• {d.name}</span>}
                                 {d.city && <span style={{ color: "#64748b" }}>• {d.city}</span>}
                               </span>
                             );
