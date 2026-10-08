@@ -9,6 +9,7 @@
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
     "create-admin": "node scripts/create-admin.js",
+    "security:audit": "node scripts/security-audit.js",
     "build:frontend": "npm --prefix ../frontend/location-app run build",
     "start:public": "npm run build:frontend && node src/server.js",
     "tunnel:quick": "cloudflared tunnel --url http://localhost:4000"

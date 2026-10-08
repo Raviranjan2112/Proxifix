@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { pool } from "../config/db.js";
+import { recordAuditLog } from "../utils/auditLogger.js";
 
 const registerSchema = z
   .object({
@@ -208,6 +209,15 @@ export async function register(request, response) {
 
     await client.query("COMMIT");
 
+    recordAuditLog({
+      userId: user.id,
+      userEmail: user.email,
+      action: "USER_REGISTERED",
+      threatCategory: "S",
+      details: { role: user.role, name: user.name },
+      ipAddress: request.ip
+    });
+
     return response.status(201).json({
       success: true,
       message: "Account created successfully.",
@@ -280,6 +290,15 @@ export async function login(request, response) {
         message: "Invalid email or password.",
       });
     }
+
+    recordAuditLog({
+      userId: user.id,
+      userEmail: user.email,
+      action: "USER_LOGIN_SUCCESS",
+      threatCategory: "S",
+      details: { role: user.role },
+      ipAddress: request.ip
+    });
 
     return response.json({
       success: true,

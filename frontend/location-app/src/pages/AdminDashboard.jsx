@@ -21,6 +21,12 @@ export default function AdminDashboard() {
   const [pagination, setPagination] = useState({ page: 1, limit: 8, total: 0, totalPages: 1 });
   const [message, setMessage] = useState("Loading worker directory...");
   const [loadingId, setLoadingId] = useState("");
+  
+  // STRIDE & DREAD Security Center State
+  const [activeTab, setActiveTab] = useState("workers");
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [dreadMatrix, setDreadMatrix] = useState([]);
+  const [loadingSecurity, setLoadingSecurity] = useState(false);
 
   async function loadDashboard() {
     try {
@@ -40,7 +46,29 @@ export default function AdminDashboard() {
     }
   }
 
-  useEffect(() => { loadDashboard(); }, [selectedService, search, page]);
+  async function loadSecurityData() {
+    setLoadingSecurity(true);
+    try {
+      const [logsRes, dreadRes] = await Promise.all([
+        api.get("/admin/audit-logs"),
+        api.get("/admin/security/dread")
+      ]);
+      setAuditLogs(logsRes.data.logs || []);
+      setDreadMatrix(dreadRes.data.matrix || []);
+    } catch (err) {
+      console.error("Could not load security data:", err);
+    } finally {
+      setLoadingSecurity(false);
+    }
+  }
+
+  useEffect(() => { 
+    if (activeTab === "workers") {
+      loadDashboard(); 
+    } else {
+      loadSecurityData();
+    }
+  }, [selectedService, search, page, activeTab]);
 
   async function updateWorkerStatus(worker, status) {
     if (status === "REJECTED" && !window.confirm(`Reject ${worker.name}? They will be taken offline immediately.`)) return;
@@ -70,68 +98,209 @@ export default function AdminDashboard() {
       <header className="topbar">
         <Link className="brand" to="/"><span className="brand-icon">P</span>ProxiFix Admin</Link>
         <nav className="nav-actions">
-          <Link className="nav-link" to="/">Home</Link>
+          <button 
+            className={`btn ${activeTab === 'workers' ? 'btn-primary' : 'btn-outline'}`} 
+            type="button" 
+            onClick={() => setActiveTab('workers')}
+          >
+            👥 Workers
+          </button>
+          <button 
+            className={`btn ${activeTab === 'security' ? 'btn-primary' : 'btn-outline'}`} 
+            type="button" 
+            onClick={() => setActiveTab('security')}
+          >
+            🛡️ STRIDE & DREAD Security
+          </button>
           <button className="btn btn-outline" type="button" onClick={handleLogout}>Logout</button>
         </nav>
       </header>
 
-      <section className="dashboard-section">
-        <p className="eyebrow">Administrator</p>
-        <h1>Welcome, {user?.name || "Admin"}</h1>
-        <p className="dashboard-intro">Review service professionals, monitor registrations by service, and keep customers safe.</p>
+      {activeTab === "workers" ? (
+        <section className="dashboard-section">
+          <p className="eyebrow">Administrator</p>
+          <h1>Welcome, {user?.name || "Admin"}</h1>
+          <p className="dashboard-intro">Review service professionals, monitor registrations by service, and keep customers safe.</p>
 
-        <div className="dashboard-grid admin-summary-grid">
-          <SummaryCard icon="👷" title="Total Workers" value={summary.total_workers} />
-          <SummaryCard icon="⌛" title="Pending Approval" value={summary.pending_workers} />
-          <SummaryCard icon="✅" title="Approved Workers" value={summary.approved_workers} />
-          <SummaryCard icon="⛔" title="Rejected Workers" value={summary.rejected_workers} />
-        </div>
+          <div className="dashboard-grid admin-summary-grid">
+            <SummaryCard icon="👷" title="Total Workers" value={summary.total_workers} />
+            <SummaryCard icon="⌛" title="Pending Approval" value={summary.pending_workers} />
+            <SummaryCard icon="✅" title="Approved Workers" value={summary.approved_workers} />
+            <SummaryCard icon="⛔" title="Rejected Workers" value={summary.rejected_workers} />
+          </div>
 
-        <SectionTitle eyebrow="Service overview" title="Registered workers by service" description="See exactly how many workers offer each service." />
-        <div className="admin-service-grid">
-          {serviceCounts.map((service) => (
-            <article className="admin-service-card" key={service.id}>
-              <span className="service-icon">{service.icon || "🛠️"}</span>
-              <div>
-                <h3>{service.name}</h3>
-                <p><strong>{service.total_workers}</strong> registered</p>
-                <small>{service.approved_workers} approved · {service.pending_workers} pending · {service.rejected_workers} rejected</small>
-              </div>
-            </article>
-          ))}
-        </div>
+          <SectionTitle eyebrow="Service overview" title="Registered workers by service" description="See exactly how many workers offer each service." />
+          <div className="admin-service-grid">
+            {serviceCounts.map((service) => (
+              <article className="admin-service-card" key={service.id}>
+                <span className="service-icon">{service.icon || "🛠️"}</span>
+                <div>
+                  <h3>{service.name}</h3>
+                  <p><strong>{service.total_workers}</strong> registered</p>
+                  <small>{service.approved_workers} approved · {service.pending_workers} pending · {service.rejected_workers} rejected</small>
+                </div>
+              </article>
+            ))}
+          </div>
 
-        <SectionTitle eyebrow="Verification management" title="Pending worker applications" description={message} />
-        <div className="worker-grid">
-          {pendingWorkers.length === 0 && <article className="worker-card"><div><h3>No pending applications</h3><p>New worker registrations will appear here for approval.</p></div></article>}
-          {pendingWorkers.map((worker) => <WorkerCard key={worker.id} worker={worker} loadingId={loadingId} onUpdate={updateWorkerStatus} />)}
-        </div>
+          <SectionTitle eyebrow="Verification management" title="Pending worker applications" description={message} />
+          <div className="worker-grid">
+            {pendingWorkers.length === 0 && <article className="worker-card"><div><h3>No pending applications</h3><p>New worker registrations will appear here for approval.</p></div></article>}
+            {pendingWorkers.map((worker) => <WorkerCard key={worker.id} worker={worker} loadingId={loadingId} onUpdate={updateWorkerStatus} />)}
+          </div>
 
-        <SectionTitle eyebrow="Worker directory" title="All registered worker details" description="You can reject an approved worker here if a future issue is reported. Rejection takes them offline." />
-        <div className="directory-toolbar">
-          <label>
-            Service type
-            <select value={selectedService} onChange={(event) => { setSelectedService(event.target.value); setPage(1); }}>
-              <option value="">All registered services</option>
-              {serviceCounts.map((service) => <option key={service.id} value={service.name}>{service.name} ({service.total_workers})</option>)}
-            </select>
-          </label>
-          <label className="directory-search">
-            Search worker
-            <input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Name or mobile number" />
-          </label>
-          <p className="directory-count">Showing {workers.length} of {pagination.total} worker(s)</p>
-        </div>
-        <div className="admin-worker-list">
-          {workers.length === 0 && <article className="worker-card"><div><h3>No workers found</h3><p>Try another service, name, or mobile number.</p></div></article>}
-          {workers.map((worker) => <WorkerCard key={worker.id} worker={worker} loadingId={loadingId} onUpdate={updateWorkerStatus} compact />)}
-        </div>
-        {pagination.totalPages > 1 && <div className="directory-pagination">
-          <button className="btn btn-outline" type="button" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button>
-          <span>Page {pagination.page} of {pagination.totalPages}</span>
-          <button className="btn btn-primary" type="button" disabled={page === pagination.totalPages} onClick={() => setPage(page + 1)}>Next</button>
-        </div>}
-      </section>
+          <SectionTitle eyebrow="Worker directory" title="All registered worker details" description="You can reject an approved worker here if a future issue is reported. Rejection takes them offline." />
+          <div className="directory-toolbar">
+            <label className="directory-filter">
+              Filter by service
+              <select value={selectedService} onChange={(event) => { setSelectedService(event.target.value); setPage(1); }}>
+                <option value="">All registered services</option>
+                {serviceCounts.map((service) => <option key={service.id} value={service.name}>{service.name} ({service.total_workers})</option>)}
+              </select>
+            </label>
+            <label className="directory-search">
+              Search worker
+              <input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Name or mobile number" />
+            </label>
+            <p className="directory-count">Showing {workers.length} of {pagination.total} worker(s)</p>
+          </div>
+          <div className="admin-worker-list">
+            {workers.length === 0 && <article className="worker-card"><div><h3>No workers found</h3><p>Try another service, name, or mobile number.</p></div></article>}
+            {workers.map((worker) => <WorkerCard key={worker.id} worker={worker} loadingId={loadingId} onUpdate={updateWorkerStatus} compact />)}
+          </div>
+          {pagination.totalPages > 1 && <div className="directory-pagination">
+            <button className="btn btn-outline" type="button" disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button>
+            <span>Page {pagination.page} of {pagination.totalPages}</span>
+            <button className="btn btn-primary" type="button" disabled={page === pagination.totalPages} onClick={() => setPage(page + 1)}>Next</button>
+          </div>}
+        </section>
+      ) : (
+        <section className="dashboard-section">
+          <p className="eyebrow">Cyber Security Governance</p>
+          <h1>STRIDE Threat Model & DREAD Risk Dashboard</h1>
+          <p className="dashboard-intro">Live security auditing, non-repudiation tracking logs, and defensive mitigations matrix.</p>
+
+          <div className="dashboard-grid admin-summary-grid">
+            <SummaryCard icon="🛡️" title="Threat Model" value="STRIDE + DREAD" />
+            <SummaryCard icon="📜" title="Audit Records" value={auditLogs.length} />
+            <SummaryCard icon="🔒" title="Auth Algorithm" value="JWT (HS256)" />
+            <SummaryCard icon="⚡" title="Spatial Security" value="PostGIS GiST" />
+          </div>
+
+          <SectionTitle 
+            eyebrow="Quantitative Risk Assessment" 
+            title="DREAD Threat Scoring Matrix" 
+            description="Damage, Reproducibility, Exploitability, Affected users, and Discoverability rated 1-10." 
+          />
+
+          <div style={{ overflowX: "auto", margin: "1.5rem 0", background: "white", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
+              <thead>
+                <tr style={{ background: "#f8fafc", borderBottom: "2px solid #cbd5e1", textAlign: "left" }}>
+                  <th style={{ padding: "10px 14px" }}>STRIDE Vector</th>
+                  <th style={{ padding: "10px 14px" }}>Threat Scenario</th>
+                  <th style={{ padding: "10px 14px" }}>D</th>
+                  <th style={{ padding: "10px 14px" }}>R</th>
+                  <th style={{ padding: "10px 14px" }}>E</th>
+                  <th style={{ padding: "10px 14px" }}>A</th>
+                  <th style={{ padding: "10px 14px" }}>D</th>
+                  <th style={{ padding: "10px 14px" }}>Risk Score</th>
+                  <th style={{ padding: "10px 14px" }}>Status / Mitigation</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dreadMatrix.map((item, index) => (
+                  <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                    <td style={{ padding: "10px 14px", fontWeight: "bold", color: "#1e293b" }}>{item.category}</td>
+                    <td style={{ padding: "10px 14px" }}>{item.threat}</td>
+                    <td style={{ padding: "10px 14px" }}>{item.d}</td>
+                    <td style={{ padding: "10px 14px" }}>{item.r}</td>
+                    <td style={{ padding: "10px 14px" }}>{item.e}</td>
+                    <td style={{ padding: "10px 14px" }}>{item.a}</td>
+                    <td style={{ padding: "10px 14px" }}>{item.disc}</td>
+                    <td style={{ padding: "10px 14px" }}>
+                      <span style={{ 
+                        padding: "3px 8px", 
+                        borderRadius: "12px", 
+                        fontWeight: "bold",
+                        background: item.riskLevel === "High" ? "#fee2e2" : "#fef3c7",
+                        color: item.riskLevel === "High" ? "#b91c1c" : "#92400e"
+                      }}>
+                        {item.score.toFixed(1)} / 10
+                      </span>
+                    </td>
+                    <td style={{ padding: "10px 14px", fontSize: "0.85rem", color: "#475569" }}>
+                      {item.mitigation}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <SectionTitle 
+            eyebrow="Non-Repudiation Trail (STRIDE: 'R')" 
+            title="Real-Time Security Audit Logs" 
+            description="Immutable logs recorded for authentication, worker approvals, booking status changes, and photo uploads." 
+          />
+
+          <div style={{ overflowX: "auto", margin: "1.5rem 0", background: "white", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
+              <thead>
+                <tr style={{ background: "#f8fafc", borderBottom: "2px solid #cbd5e1", textAlign: "left" }}>
+                  <th style={{ padding: "10px 14px" }}>Timestamp</th>
+                  <th style={{ padding: "10px 14px" }}>STRIDE</th>
+                  <th style={{ padding: "10px 14px" }}>Action</th>
+                  <th style={{ padding: "10px 14px" }}>User Email</th>
+                  <th style={{ padding: "10px 14px" }}>IP Address</th>
+                  <th style={{ padding: "10px 14px" }}>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {auditLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+                      {loadingSecurity ? "Loading audit logs..." : "No audit entries recorded yet. Interactions will appear here."}
+                    </td>
+                  </tr>
+                ) : (
+                  auditLogs.map((log) => (
+                    <tr key={log.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                      <td style={{ padding: "10px 14px", whiteSpace: "nowrap", color: "#64748b", fontSize: "0.8rem" }}>
+                        {new Date(log.created_at).toLocaleString()}
+                      </td>
+                      <td style={{ padding: "10px 14px" }}>
+                        <span style={{ 
+                          padding: "2px 6px", 
+                          borderRadius: "4px", 
+                          fontWeight: "bold", 
+                          fontSize: "0.75rem",
+                          background: "#e0f2fe", 
+                          color: "#0369a1" 
+                        }}>
+                          [{log.threat_category}]
+                        </span>
+                      </td>
+                      <td style={{ padding: "10px 14px", fontWeight: "600", color: "#1e293b" }}>
+                        {log.action}
+                      </td>
+                      <td style={{ padding: "10px 14px", color: "#334155" }}>
+                        {log.user_email || "N/A"}
+                      </td>
+                      <td style={{ padding: "10px 14px", color: "#64748b", fontFamily: "monospace" }}>
+                        {log.ip_address || "127.0.0.1"}
+                      </td>
+                      <td style={{ padding: "10px 14px", fontSize: "0.8rem", color: "#64748b" }}>
+                        {JSON.stringify(log.details || {})}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
     </main>
   );
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { unlink } from "node:fs/promises";
 import { pool } from "../config/db.js";
+import { recordAuditLog } from "../utils/auditLogger.js";
 
 const createBookingSchema = z.object({
   workerId: z.string().uuid(),
@@ -192,6 +193,15 @@ export async function createBooking(request, response) {
     );
 
     await client.query("COMMIT");
+
+    recordAuditLog({
+      userId: request.user.sub,
+      userEmail: request.user.email,
+      action: "BOOKING_CREATED",
+      threatCategory: "R",
+      details: { bookingId: bookingResult.rows[0].id, workerId: data.workerId },
+      ipAddress: request.ip
+    });
 
     return response.status(201).json({
       success: true,
@@ -534,6 +544,15 @@ export async function updateBookingStatus(request, response) {
 
     await client.query("COMMIT");
 
+    recordAuditLog({
+      userId: request.user.sub,
+      userEmail: request.user.email,
+      action: `BOOKING_STATUS_${nextStatus}`,
+      threatCategory: "R",
+      details: { bookingId: booking.id, newStatus: nextStatus },
+      ipAddress: request.ip
+    });
+
     return response.json({
       success: true,
       message: `Booking status changed to ${nextStatus}.`,
@@ -829,6 +848,15 @@ export async function uploadBookingCompletionPhoto(request, response) {
 
     await client.query("COMMIT");
 
+    recordAuditLog({
+      userId: request.user.sub,
+      userEmail: request.user.email,
+      action: "COMPLETION_PHOTO_UPLOADED",
+      threatCategory: "T",
+      details: { bookingId: booking.id, photoUrl: completionPhotoUrl },
+      ipAddress: request.ip
+    });
+
     return response.status(201).json({
       success: true,
       message: "Completion photo uploaded. You can now mark the service as completed.",
@@ -997,6 +1025,15 @@ export async function createReview(request, response) {
     );
 
     await client.query("COMMIT");
+
+    recordAuditLog({
+      userId: request.user.sub,
+      userEmail: request.user.email,
+      action: "REVIEW_SUBMITTED",
+      threatCategory: "R",
+      details: { bookingId: booking.id, rating: data.rating },
+      ipAddress: request.ip
+    });
 
     return response.status(201).json({
       success: true,
