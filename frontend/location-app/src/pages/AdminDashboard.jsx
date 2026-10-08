@@ -28,9 +28,10 @@ export default function AdminDashboard() {
   const [dreadMatrix, setDreadMatrix] = useState([]);
   const [loadingSecurity, setLoadingSecurity] = useState(false);
 
-  // IP Tracking Hover Popover State
+  // IP Tracking Hover & Click Popover State
   const [ipPopover, setIpPopover] = useState({
     visible: false,
+    isLocked: false,
     ip: null,
     x: 0,
     y: 0,
@@ -39,32 +40,55 @@ export default function AdminDashboard() {
   });
   const [ipCache, setIpCache] = useState({});
 
+  function calculatePopoverPosition(rect) {
+    const popWidth = 340;
+    const popHeight = 310;
+    
+    // Center horizontally on the clicked/hovered badge
+    let x = rect.left + rect.width / 2 - popWidth / 2;
+    if (x + popWidth > window.innerWidth - 16) {
+      x = window.innerWidth - popWidth - 16;
+    }
+    if (x < 16) {
+      x = 16;
+    }
+
+    // Position vertically: try below, else place above
+    let y = rect.bottom + 8;
+    if (y + popHeight > window.innerHeight - 10) {
+      y = Math.max(10, rect.top - popHeight - 8);
+    }
+
+    return { x, y };
+  }
+
   async function handleIpHover(ip, event) {
-    if (!ip) return;
+    if (!ip || ipPopover.isLocked) return;
     const rect = event.currentTarget.getBoundingClientRect();
-    const x = rect.left + window.scrollX;
-    const y = rect.bottom + window.scrollY + 8;
+    const { x, y } = calculatePopoverPosition(rect);
 
     if (ipCache[ip]) {
-      setIpPopover({
+      setIpPopover((prev) => (prev.isLocked ? prev : {
+        ...prev,
         visible: true,
         ip,
         x,
         y,
         loading: false,
         data: ipCache[ip],
-      });
+      }));
       return;
     }
 
-    setIpPopover({
+    setIpPopover((prev) => (prev.isLocked ? prev : {
+      ...prev,
       visible: true,
       ip,
       x,
       y,
       loading: true,
       data: null,
-    });
+    }));
 
     try {
       const response = await api.get("/admin/ip-tracking", { params: { ip } });
@@ -91,7 +115,38 @@ export default function AdminDashboard() {
   }
 
   function handleIpLeave() {
-    setIpPopover({ visible: false, ip: null, x: 0, y: 0, loading: false, data: null });
+    setIpPopover((prev) => (prev.isLocked ? prev : { ...prev, visible: false, ip: null }));
+  }
+
+  function handleIpClick(ip, event) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const { x, y } = calculatePopoverPosition(rect);
+
+    setIpPopover((prev) => {
+      const isClosing = prev.visible && prev.isLocked && prev.ip === ip;
+      if (isClosing) {
+        return { ...prev, visible: false, isLocked: false, ip: null };
+      }
+      return {
+        ...prev,
+        visible: true,
+        isLocked: true,
+        ip,
+        x,
+        y,
+        loading: !ipCache[ip],
+        data: ipCache[ip] || null,
+      };
+    });
+
+    if (!ipCache[ip]) {
+      api.get("/admin/ip-tracking", { params: { ip } }).then((res) => {
+        if (res.data?.success) {
+          setIpCache((prev) => ({ ...prev, [ip]: res.data }));
+          setIpPopover((prev) => (prev.ip === ip ? { ...prev, loading: false, data: res.data } : prev));
+        }
+      });
+    }
   }
 
   async function loadDashboard() {
@@ -378,6 +433,7 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{ padding: "10px 14px" }}>
                         <span
+                          onClick={(e) => handleIpClick(log.ip_address || "127.0.0.1", e)}
                           onMouseEnter={(e) => handleIpHover(log.ip_address || "127.0.0.1", e)}
                           onMouseLeave={handleIpLeave}
                           style={{
@@ -387,7 +443,7 @@ export default function AdminDashboard() {
                             gap: "6px",
                             padding: "3px 8px",
                             borderRadius: "6px",
-                            background: "#f1f5f9",
+                            background: ipPopover.visible && ipPopover.ip === (log.ip_address || "127.0.0.1") ? "#e2e8f0" : "#f1f5f9",
                             border: "1px solid #cbd5e1",
                             color: "#0f172a",
                             fontFamily: "monospace",
@@ -395,7 +451,7 @@ export default function AdminDashboard() {
                             fontWeight: "600",
                             transition: "all 0.15s ease",
                           }}
-                          title="Hover to trace IP Geolocation & History"
+                          title="Click or Hover to trace IP Geolocation & History"
                         >
                           🛰️ {log.ip_address || "127.0.0.1"}
                         </span>
@@ -413,19 +469,20 @@ export default function AdminDashboard() {
           {ipPopover.visible && (
             <div
               style={{
-                position: "absolute",
-                top: ipPopover.y,
-                left: Math.max(12, Math.min(ipPopover.x, window.innerWidth - 350)),
-                width: "330px",
+                position: "fixed",
+                top: `${ipPopover.y}px`,
+                left: `${ipPopover.x}px`,
+                width: "340px",
+                maxWidth: "calc(100vw - 32px)",
                 background: "#0f172a",
                 color: "#f8fafc",
                 borderRadius: "10px",
-                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2)",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px #334155",
                 padding: "14px",
                 fontSize: "0.82rem",
-                zIndex: 99999,
-                border: "1px solid #334155",
-                pointerEvents: "none",
+                zIndex: 999999,
+                pointerEvents: ipPopover.isLocked ? "auto" : "none",
+                animation: "fadeIn 0.15s ease-out",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #334155", paddingBottom: "8px", marginBottom: "10px" }}>
@@ -435,17 +492,37 @@ export default function AdminDashboard() {
                     {ipPopover.ip}
                   </span>
                 </div>
-                <span style={{ 
-                  fontSize: "0.7rem", 
-                  padding: "2px 7px", 
-                  borderRadius: "4px", 
-                  background: ipPopover.data?.geo?.isPrivate ? "#1e293b" : "#065f46",
-                  color: ipPopover.data?.geo?.isPrivate ? "#94a3b8" : "#34d399",
-                  fontWeight: "bold",
-                  textTransform: "uppercase"
-                }}>
-                  {ipPopover.data?.geo?.networkType || "IP Tracing"}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ 
+                    fontSize: "0.7rem", 
+                    padding: "2px 7px", 
+                    borderRadius: "4px", 
+                    background: ipPopover.data?.geo?.isPrivate ? "#1e293b" : "#065f46",
+                    color: ipPopover.data?.geo?.isPrivate ? "#94a3b8" : "#34d399",
+                    fontWeight: "bold",
+                    textTransform: "uppercase"
+                  }}>
+                    {ipPopover.data?.geo?.networkType || "IP Tracing"}
+                  </span>
+                  {ipPopover.isLocked && (
+                    <button
+                      type="button"
+                      onClick={() => setIpPopover((prev) => ({ ...prev, visible: false, isLocked: false, ip: null }))}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "#94a3b8",
+                        cursor: "pointer",
+                        fontSize: "0.95rem",
+                        padding: "0 4px",
+                        lineHeight: "1",
+                      }}
+                      title="Close popover"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               </div>
 
               {ipPopover.loading ? (
