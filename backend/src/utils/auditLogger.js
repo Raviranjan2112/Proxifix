@@ -21,6 +21,11 @@ export async function recordAuditLog({
   ipAddress = null
 }) {
   try {
+    let cleanIp = ipAddress ? ipAddress.toString().split(",")[0].trim() : null;
+    if (cleanIp && cleanIp.startsWith("::ffff:")) {
+      cleanIp = cleanIp.replace("::ffff:", "");
+    }
+
     const query = `
       INSERT INTO audit_logs (user_id, user_email, action, threat_category, details, ip_address)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -31,7 +36,7 @@ export async function recordAuditLog({
       action,
       threatCategory,
       JSON.stringify(details),
-      ipAddress
+      cleanIp
     ]);
   } catch (error) {
     // Non-blocking log failure

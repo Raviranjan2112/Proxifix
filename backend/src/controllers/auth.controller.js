@@ -296,7 +296,7 @@ export async function login(request, response) {
       userEmail: user.email,
       action: "USER_LOGIN_SUCCESS",
       threatCategory: "S",
-      details: { role: user.role },
+      details: { role: user.role, name: user.name, phone: user.phone },
       ipAddress: request.ip
     });
 

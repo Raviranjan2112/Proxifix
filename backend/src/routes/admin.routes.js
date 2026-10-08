@@ -5,6 +5,7 @@ import {
   updateWorkerApproval,
   getAuditLogs,
   getSecurityDreadMatrix,
+  getIpTrackingDetails,
 } from "../controllers/admin.controller.js";
 import { authenticate, allowRoles } from "../middleware/auth.middleware.js";
 
@@ -17,5 +18,6 @@ router.get("/workers/pending", getPendingWorkers);
 router.put("/workers/:workerId/approval", updateWorkerApproval);
 router.get("/audit-logs", getAuditLogs);
 router.get("/security/dread", getSecurityDreadMatrix);
+router.get("/ip-tracking", getIpTrackingDetails);
 
 export default router;

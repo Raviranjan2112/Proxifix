@@ -12,6 +12,7 @@ import workersRoutes from "./routes/workers.routes.js";
 import notificationsRoutes from "./routes/notifications.routes.js";
 
 const app = express();
+app.set("trust proxy", true);
 const uploadsDirectory = resolve(import.meta.dirname, "../uploads");
 const frontendBuildDirectory = resolve(import.meta.dirname, "../../frontend/location-app/dist");
 

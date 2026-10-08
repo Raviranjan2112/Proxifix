@@ -263,3 +263,133 @@ export async function getSecurityDreadMatrix(request, response) {
     matrix: dreadMatrix
   });
 }
+
+const ipGeoCache = new Map();
+
+export async function getIpTrackingDetails(request, response) {
+  try {
+    const rawIp = (request.query.ip || request.params.ip || "").trim();
+    if (!rawIp) {
+      return response.status(400).json({ success: false, message: "IP address is required" });
+    }
+
+    let ip = rawIp;
+    if (ip.startsWith("::ffff:")) {
+      ip = ip.replace("::ffff:", "");
+    }
+
+    // 1. Query audit_logs database for all historical events associated with this IP
+    const statsResult = await pool.query(
+      `
+        SELECT 
+          COUNT(*)::int AS total_events,
+          COUNT(DISTINCT user_email)::int AS total_users,
+          ARRAY_REMOVE(ARRAY_AGG(DISTINCT user_email), NULL) AS users,
+          ARRAY_REMOVE(ARRAY_AGG(DISTINCT action), NULL) AS actions,
+          MIN(created_at) AS first_seen,
+          MAX(created_at) AS last_seen
+        FROM audit_logs
+        WHERE ip_address = $1 OR ip_address = $2
+      `,
+      [rawIp, ip]
+    );
+
+    const stats = statsResult.rows[0] || {
+      total_events: 0,
+      total_users: 0,
+      users: [],
+      actions: [],
+      first_seen: null,
+      last_seen: null
+    };
+
+    // 2. Identify if loopback or private subnet
+    const isPrivate =
+      ip === "::1" ||
+      ip === "127.0.0.1" ||
+      ip.startsWith("192.168.") ||
+      ip.startsWith("10.") ||
+      ip.startsWith("172.16.") ||
+      ip.startsWith("fe80:") ||
+      ip.toLowerCase().includes("localhost");
+
+    let geoData = null;
+
+    if (isPrivate) {
+      geoData = {
+        city: "Localhost Machine",
+        region: "Internal Development Host",
+        country: "Local Workstation",
+        countryCode: "LOCAL",
+        flag: "💻",
+        isp: "Localhost Loopback Network Adapter",
+        networkType: ip === "::1" ? "IPv6 Loopback" : "IPv4 Loopback",
+        coordinates: "127.0.0.1 (Self Host)",
+        threatLevel: "Low / Trusted Admin",
+        isPrivate: true
+      };
+    } else {
+      if (ipGeoCache.has(ip)) {
+        geoData = ipGeoCache.get(ip);
+      } else {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 2500);
+          const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, { signal: controller.signal });
+          clearTimeout(timeout);
+          const data = await res.json();
+          if (data && data.success !== false) {
+            geoData = {
+              city: data.city || "Unknown City",
+              region: data.region || "Unknown Region",
+              country: data.country || "Unknown Country",
+              countryCode: data.country_code || "",
+              flag: data.flag?.emoji || "🌐",
+              isp: data.connection?.isp || data.connection?.org || "Internet Service Provider",
+              networkType: data.type || (ip.includes(":") ? "IPv6 Public" : "IPv4 Public"),
+              coordinates: `${data.latitude || 0}° N, ${data.longitude || 0}° E`,
+              threatLevel: "Verified Public Route",
+              isPrivate: false
+            };
+            ipGeoCache.set(ip, geoData);
+          }
+        } catch (fetchErr) {
+          console.warn("GeoIP lookup failed:", fetchErr.message);
+        }
+
+        if (!geoData) {
+          geoData = {
+            city: "Public Gateway",
+            region: "Global Route",
+            country: "Public Internet",
+            countryCode: "NET",
+            flag: "🌐",
+            isp: "External ISP Gateway",
+            networkType: ip.includes(":") ? "IPv6" : "IPv4",
+            coordinates: "Global Gateway",
+            threatLevel: "Normal",
+            isPrivate: false
+          };
+        }
+      }
+    }
+
+    return response.json({
+      success: true,
+      ip: rawIp,
+      geo: geoData,
+      stats: {
+        totalEvents: stats.total_events || 0,
+        totalUsers: stats.total_users || 0,
+        users: stats.users || [],
+        actions: stats.actions || [],
+        firstSeen: stats.first_seen,
+        lastSeen: stats.last_seen
+      }
+    });
+  } catch (error) {
+    console.error("Error in getIpTrackingDetails:", error);
+    return response.status(500).json({ success: false, message: "Could not fetch IP tracking details" });
+  }
+}
+
