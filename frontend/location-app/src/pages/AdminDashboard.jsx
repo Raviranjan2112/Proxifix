@@ -26,6 +26,8 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("workers");
   const [auditLogs, setAuditLogs] = useState([]);
   const [dreadMatrix, setDreadMatrix] = useState([]);
+  const [securityAlerts, setSecurityAlerts] = useState([]);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
   const [loadingSecurity, setLoadingSecurity] = useState(false);
 
   // IP Tracking Hover & Click Popover State
@@ -170,16 +172,58 @@ export default function AdminDashboard() {
   async function loadSecurityData() {
     setLoadingSecurity(true);
     try {
-      const [logsRes, dreadRes] = await Promise.all([
+      const [logsRes, dreadRes, alertsRes] = await Promise.all([
         api.get("/admin/audit-logs"),
-        api.get("/admin/security/dread")
+        api.get("/admin/security/dread"),
+        api.get("/admin/security-alerts")
       ]);
       setAuditLogs(logsRes.data.logs || []);
       setDreadMatrix(dreadRes.data.matrix || []);
+      setSecurityAlerts(alertsRes.data.alerts || []);
     } catch (err) {
       console.error("Could not load security data:", err);
     } finally {
       setLoadingSecurity(false);
+    }
+  }
+
+  async function handleBlockUser(targetUserId, userEmail) {
+    if (!targetUserId) {
+      alert("Cannot block user: missing user ID.");
+      return;
+    }
+    const reason = window.prompt(
+      `Are you sure you want to PERMANENTLY BLOCK ${userEmail} from accessing the website?\n\nEnter reason for blocking (e.g. Unusual activity / GPS spoofing / Rate abuse):`,
+      "Unusual activity detected by security monitor"
+    );
+    if (!reason) return;
+
+    setActionLoadingId(targetUserId);
+    try {
+      const res = await api.post(`/admin/users/${targetUserId}/block`, { reason });
+      alert(`✅ ${res.data.message}`);
+      loadSecurityData();
+      if (activeTab === "workers") loadDashboard();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to block user.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  }
+
+  async function handleUnblockUser(targetUserId, userEmail) {
+    if (!window.confirm(`Unblock ${userEmail} and restore their full access to the website?`)) return;
+
+    setActionLoadingId(targetUserId);
+    try {
+      const res = await api.post(`/admin/users/${targetUserId}/unblock`);
+      alert(`✅ ${res.data.message}`);
+      loadSecurityData();
+      if (activeTab === "workers") loadDashboard();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to unblock user.");
+    } finally {
+      setActionLoadingId(null);
     }
   }
 
@@ -382,6 +426,170 @@ export default function AdminDashboard() {
             </table>
           </div>
 
+          {/* UNUSUAL ACTIVITY & THREAT NOTIFICATIONS CENTER */}
+          <div style={{ margin: "2rem 0 1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem", flexWrap: "wrap", gap: "10px" }}>
+              <div>
+                <span style={{ fontSize: "0.78rem", fontWeight: "bold", textTransform: "uppercase", color: "#dc2626", letterSpacing: "0.5px" }}>
+                  Active Threat Monitor (STRIDE: 'T' & 'D')
+                </span>
+                <h3 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#0f172a", margin: "4px 0 0" }}>
+                  🚨 Unusual Activity & Security Threat Notifications
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={loadSecurityData}
+                disabled={loadingSecurity}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  background: "#f1f5f9",
+                  border: "1px solid #cbd5e1",
+                  color: "#334155",
+                  fontSize: "0.8rem",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                }}
+              >
+                {loadingSecurity ? "Refreshing..." : "🔄 Refresh Alerts"}
+              </button>
+            </div>
+
+            {securityAlerts.length === 0 ? (
+              <div style={{ 
+                padding: "16px 20px", 
+                background: "#f0fdf4", 
+                border: "1px solid #86efac", 
+                borderRadius: "8px", 
+                color: "#166534", 
+                fontSize: "0.88rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "12px"
+              }}>
+                <span style={{ fontSize: "1.4rem" }}>🛡️</span>
+                <div>
+                  <strong>System Secure • Zero Unusual Activities Detected</strong>
+                  <div style={{ fontSize: "0.78rem", color: "#15803d", marginTop: "2px" }}>
+                    Continuous spatial bounds assertions, GPS teleportation velocity checks, and sliding-window rate limiters are actively guarding workers and customers.
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {securityAlerts.map((alert) => (
+                  <div
+                    key={alert.id}
+                    style={{
+                      background: "#fff1f2",
+                      border: "1px solid #fecdd3",
+                      borderLeft: "5px solid #e11d48",
+                      borderRadius: "8px",
+                      padding: "14px 18px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: "12px",
+                    }}
+                  >
+                    <div style={{ flex: "1 1 300px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px", flexWrap: "wrap" }}>
+                        <span style={{
+                          padding: "2px 8px",
+                          borderRadius: "4px",
+                          background: "#e11d48",
+                          color: "white",
+                          fontSize: "0.72rem",
+                          fontWeight: "bold",
+                          textTransform: "uppercase"
+                        }}>
+                          {alert.details?.severity || "CRITICAL"}
+                        </span>
+                        <strong style={{ color: "#9f1239", fontSize: "0.92rem" }}>
+                          {alert.details?.anomalyType || "UNUSUAL ACTIVITY"}
+                        </strong>
+                        <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                          {new Date(alert.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      <div style={{ color: "#334155", fontSize: "0.85rem", margin: "4px 0" }}>
+                        {alert.details?.description || "Unusual behavioral pattern triggered security alert."}
+                      </div>
+                      <div style={{ fontSize: "0.78rem", color: "#475569", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                        <span>👤 <strong>User:</strong> {alert.user_name || "N/A"} ({alert.user_email || "Anonymous"})</span>
+                        <span>🏷️ <strong>Role:</strong> {alert.user_role || "CUSTOMER"}</span>
+                        <span>🛰️ <strong>IP:</strong> {alert.ip_address || "127.0.0.1"}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      {alert.user_is_active === false ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{
+                            padding: "6px 12px",
+                            borderRadius: "6px",
+                            background: "#fee2e2",
+                            border: "1px solid #fca5a5",
+                            color: "#991b1b",
+                            fontSize: "0.8rem",
+                            fontWeight: "bold"
+                          }}>
+                            🚫 PERMANENTLY BLOCKED
+                          </span>
+                          {alert.target_user_id && (
+                            <button
+                              type="button"
+                              onClick={() => handleUnblockUser(alert.target_user_id, alert.user_email)}
+                              disabled={actionLoadingId === alert.target_user_id}
+                              style={{
+                                padding: "6px 12px",
+                                borderRadius: "6px",
+                                background: "#10b981",
+                                border: "none",
+                                color: "white",
+                                fontSize: "0.8rem",
+                                fontWeight: "bold",
+                                cursor: "pointer"
+                              }}
+                            >
+                              {actionLoadingId === alert.target_user_id ? "Restoring..." : "Restore Access"}
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        alert.target_user_id && (
+                          <button
+                            type="button"
+                            onClick={() => handleBlockUser(alert.target_user_id, alert.user_email)}
+                            disabled={actionLoadingId === alert.target_user_id}
+                            style={{
+                              padding: "8px 16px",
+                              borderRadius: "6px",
+                              background: "#e11d48",
+                              border: "none",
+                              color: "white",
+                              fontSize: "0.82rem",
+                              fontWeight: "bold",
+                              cursor: "pointer",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              boxShadow: "0 2px 4px rgba(225, 29, 72, 0.3)"
+                            }}
+                          >
+                            🛑 {actionLoadingId === alert.target_user_id ? "Blocking..." : "Permanent Block User"}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <SectionTitle 
             eyebrow="Non-Repudiation Trail (STRIDE: 'R')" 
             title="Real-Time Security Audit Logs" 
@@ -398,12 +606,13 @@ export default function AdminDashboard() {
                   <th style={{ padding: "10px 14px" }}>User Email</th>
                   <th style={{ padding: "10px 14px" }}>IP Address</th>
                   <th style={{ padding: "10px 14px" }}>Details</th>
+                  <th style={{ padding: "10px 14px", textAlign: "center" }}>Account Action</th>
                 </tr>
               </thead>
               <tbody>
                 {auditLogs.length === 0 ? (
                   <tr>
-                    <td colSpan="6" style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+                    <td colSpan="7" style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
                       {loadingSecurity ? "Loading audit logs..." : "No audit entries recorded yet. Interactions will appear here."}
                     </td>
                   </tr>
@@ -493,6 +702,66 @@ export default function AdminDashboard() {
                           }
                           return <span style={{ color: "#94a3b8" }}>—</span>;
                         })()}
+                      </td>
+                      <td style={{ padding: "10px 14px", textAlign: "center", whiteSpace: "nowrap" }}>
+                        {log.user_role === "ADMIN" ? (
+                          <span style={{ fontSize: "0.72rem", fontWeight: "bold", color: "#6366f1", background: "#e0e7ff", padding: "3px 8px", borderRadius: "4px" }}>
+                            👑 ADMIN
+                          </span>
+                        ) : log.user_is_active === false ? (
+                          <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            <span style={{ fontSize: "0.72rem", fontWeight: "bold", color: "#991b1b", background: "#fee2e2", padding: "3px 7px", borderRadius: "4px", border: "1px solid #fca5a5" }}>
+                              🚫 BLOCKED
+                            </span>
+                            {log.target_user_id && (
+                              <button
+                                type="button"
+                                onClick={() => handleUnblockUser(log.target_user_id, log.user_email)}
+                                disabled={actionLoadingId === log.target_user_id}
+                                style={{
+                                  background: "#10b981",
+                                  color: "white",
+                                  border: "none",
+                                  padding: "3px 8px",
+                                  borderRadius: "4px",
+                                  fontSize: "0.72rem",
+                                  fontWeight: "bold",
+                                  cursor: "pointer"
+                                }}
+                                title="Restore account access"
+                              >
+                                {actionLoadingId === log.target_user_id ? "..." : "Unblock"}
+                              </button>
+                            )}
+                          </div>
+                        ) : log.target_user_id ? (
+                          <button
+                            type="button"
+                            onClick={() => handleBlockUser(log.target_user_id, log.user_email)}
+                            disabled={actionLoadingId === log.target_user_id}
+                            style={{
+                              background: "#fff1f2",
+                              border: "1px solid #fecdd3",
+                              color: "#e11d48",
+                              padding: "4px 10px",
+                              borderRadius: "6px",
+                              fontSize: "0.75rem",
+                              fontWeight: "bold",
+                              cursor: "pointer",
+                              transition: "all 0.15s ease",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px"
+                            }}
+                            title="Permanently block this user from website"
+                            onMouseEnter={(e) => { e.currentTarget.style.background = "#e11d48"; e.currentTarget.style.color = "white"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = "#fff1f2"; e.currentTarget.style.color = "#e11d48"; }}
+                          >
+                            🛑 {actionLoadingId === log.target_user_id ? "Blocking..." : "Block User"}
+                          </button>
+                        ) : (
+                          <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>—</span>
+                        )}
                       </td>
                     </tr>
                   ))

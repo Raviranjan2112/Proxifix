@@ -175,8 +175,12 @@ export async function getAuditLogs(request, response) {
           sub.details,
           sub.ip_address,
           sub.created_at,
+          u.id AS target_user_id,
           u.name AS user_name,
           u.role AS user_role,
+          u.is_active AS user_is_active,
+          u.blocked_reason AS user_blocked_reason,
+          u.blocked_at AS user_blocked_at,
           COALESCE(
             (sub.details->>'latitude')::numeric,
             ST_Y(c.current_location::geometry),
@@ -211,6 +215,173 @@ export async function getAuditLogs(request, response) {
   } catch (error) {
     console.error("Failed to load audit logs:", error);
     return response.status(500).json({ success: false, message: "Could not load audit logs." });
+  }
+}
+
+export async function getSecurityAlerts(request, response) {
+  try {
+    const result = await pool.query(
+      `
+        SELECT 
+          al.id,
+          al.user_id,
+          al.user_email,
+          al.action,
+          al.threat_category,
+          al.details,
+          al.ip_address,
+          al.created_at,
+          u.id AS target_user_id,
+          u.name AS user_name,
+          u.role AS user_role,
+          u.is_active AS user_is_active,
+          u.blocked_reason,
+          u.blocked_at
+        FROM audit_logs al
+        LEFT JOIN users u ON (u.id = al.user_id OR u.email = al.user_email)
+        WHERE al.action = 'UNUSUAL_ACTIVITY_ALERT'
+        ORDER BY al.created_at DESC
+        LIMIT 25
+      `
+    );
+
+    return response.json({
+      success: true,
+      alerts: result.rows
+    });
+  } catch (error) {
+    console.error("Failed to load security alerts:", error);
+    return response.status(500).json({ success: false, message: "Could not load security alerts." });
+  }
+}
+
+export async function blockUser(request, response) {
+  const { userId } = request.params;
+  const { reason } = request.body || {};
+
+  try {
+    const userResult = await pool.query(
+      "SELECT id, email, role, name, is_active FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (userResult.rowCount === 0) {
+      return response.status(404).json({ success: false, message: "User not found." });
+    }
+
+    const user = userResult.rows[0];
+
+    if (user.role === "ADMIN") {
+      return response.status(400).json({
+        success: false,
+        message: "Administrator accounts cannot be blocked."
+      });
+    }
+
+    const blockReason = reason || "Unusual activity detected by security monitor";
+
+    await pool.query(
+      `
+        UPDATE users 
+        SET is_active = FALSE, 
+            blocked_reason = $1, 
+            blocked_at = NOW() 
+        WHERE id = $2
+      `,
+      [blockReason, userId]
+    );
+
+    // If user is a worker, immediately force offline
+    if (user.role === "WORKER") {
+      await pool.query(
+        "UPDATE workers SET online_status = FALSE, availability_status = 'OFFLINE' WHERE user_id = $1",
+        [userId]
+      );
+    }
+
+    recordAuditLog({
+      userId: request.user.sub,
+      userEmail: request.user.email,
+      action: "ADMIN_BLOCK_USER",
+      threatCategory: "E",
+      details: {
+        blockedUserId: userId,
+        blockedUserEmail: user.email,
+        blockedUserName: user.name,
+        blockedUserRole: user.role,
+        reason: blockReason
+      },
+      ipAddress: request.ip
+    });
+
+    return response.json({
+      success: true,
+      message: `User ${user.email} (${user.role}) has been permanently blocked from the website.`,
+      user: {
+        id: userId,
+        email: user.email,
+        isActive: false,
+        blockedReason: blockReason
+      }
+    });
+  } catch (error) {
+    console.error("Failed to block user:", error);
+    return response.status(500).json({ success: false, message: "Could not block user." });
+  }
+}
+
+export async function unblockUser(request, response) {
+  const { userId } = request.params;
+
+  try {
+    const userResult = await pool.query(
+      "SELECT id, email, role, name, is_active FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (userResult.rowCount === 0) {
+      return response.status(404).json({ success: false, message: "User not found." });
+    }
+
+    const user = userResult.rows[0];
+
+    await pool.query(
+      `
+        UPDATE users 
+        SET is_active = TRUE, 
+            blocked_reason = NULL, 
+            blocked_at = NULL 
+        WHERE id = $1
+      `,
+      [userId]
+    );
+
+    recordAuditLog({
+      userId: request.user.sub,
+      userEmail: request.user.email,
+      action: "ADMIN_UNBLOCK_USER",
+      threatCategory: "E",
+      details: {
+        unblockedUserId: userId,
+        unblockedUserEmail: user.email,
+        unblockedUserName: user.name,
+        unblockedUserRole: user.role
+      },
+      ipAddress: request.ip
+    });
+
+    return response.json({
+      success: true,
+      message: `User ${user.email} has been unblocked and access restored.`,
+      user: {
+        id: userId,
+        email: user.email,
+        isActive: true
+      }
+    });
+  } catch (error) {
+    console.error("Failed to unblock user:", error);
+    return response.status(500).json({ success: false, message: "Could not unblock user." });
   }
 }
 

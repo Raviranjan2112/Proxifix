@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { pool } from "../config/db.js";
 import { recordAuditLog } from "../utils/auditLogger.js";
+import { recordFailedLoginAttempt } from "../utils/securityAlerts.js";
 
 const registerSchema = z
   .object({
@@ -259,7 +260,7 @@ export async function login(request, response) {
 
     const result = await pool.query(
       `
-        SELECT id, name, email, phone, password_hash, role, is_active
+        SELECT id, name, email, phone, password_hash, role, is_active, blocked_reason
         FROM users
         WHERE email = $1
       `,
@@ -267,6 +268,7 @@ export async function login(request, response) {
     );
 
     if (result.rowCount === 0) {
+      recordFailedLoginAttempt(email, request.ip);
       return response.status(401).json({
         success: false,
         message: "Invalid email or password.",
@@ -278,13 +280,15 @@ export async function login(request, response) {
     if (!user.is_active) {
       return response.status(403).json({
         success: false,
-        message: "This account has been disabled.",
+        isBlocked: true,
+        message: `This account has been permanently blocked by the security administrator${user.blocked_reason ? `: ${user.blocked_reason}` : " due to unusual activity."}`,
       });
     }
 
     const passwordMatches = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordMatches) {
+      recordFailedLoginAttempt(email, request.ip);
       return response.status(401).json({
         success: false,
         message: "Invalid email or password.",

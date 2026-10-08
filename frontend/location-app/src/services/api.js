@@ -19,4 +19,17 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 403 && error.response?.data?.isBlocked) {
+      alert(`⚠️ ACCOUNT ACCESS DENIED:\n\n${error.response.data.message}`);
+      localStorage.removeItem("proxifix_token");
+      localStorage.removeItem("proxifix_user");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

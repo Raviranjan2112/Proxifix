@@ -2,6 +2,7 @@ import { z } from "zod";
 import jwt from "jsonwebtoken";
 import { pool } from "../config/db.js";
 import { recordAuditLog } from "../utils/auditLogger.js";
+import { triggerUnusualActivityAlert, checkSearchRateAnomaly } from "../utils/securityAlerts.js";
 
 const nearbySchema = z.object({
   service: z.string().trim().min(2),
@@ -55,6 +56,14 @@ export async function getNearbyWorkers(request, response) {
   const { service, latitude, longitude, radius } = validation.data;
   const radiusMeters = radius * 1000;
 
+  // Rate surge monitoring (DoS / automated scraping alert)
+  checkSearchRateAnomaly(
+    request.user?.sub || request.ip,
+    request.user?.email || null,
+    request.user?.sub || null,
+    request.ip
+  );
+
   // Capture and save customer's live device GPS if authenticated
   const authHeader = request.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -62,6 +71,39 @@ export async function getNearbyWorkers(request, response) {
       const token = authHeader.split(" ")[1];
       const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
       if (payload && payload.sub) {
+        // Detect GPS Teleportation / Spoofing Anomaly (> 100km in < 10 mins)
+        const prevLoc = await pool.query(
+          `
+            SELECT 
+              updated_at,
+              ROUND((ST_Distance(current_location, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography) / 1000)::numeric, 2) AS jump_km
+            FROM customers 
+            WHERE user_id = $3 AND current_location IS NOT NULL
+          `,
+          [latitude, longitude, payload.sub]
+        );
+
+        if (prevLoc.rowCount > 0 && Number(prevLoc.rows[0].jump_km) > 100) {
+          const elapsedMinutes = (Date.now() - new Date(prevLoc.rows[0].updated_at).getTime()) / (1000 * 60);
+          if (elapsedMinutes < 10) {
+            triggerUnusualActivityAlert({
+              userId: payload.sub,
+              userEmail: payload.email,
+              anomalyType: "GPS_TELEPORTATION_SPOOFING",
+              threatCategory: "T",
+              severity: "CRITICAL",
+              description: `GPS Teleportation Anomaly: Customer jumped ${prevLoc.rows[0].jump_km} km in ${Math.round(elapsedMinutes)} min.`,
+              details: {
+                jumpKm: Number(prevLoc.rows[0].jump_km),
+                elapsedMinutes: Math.round(elapsedMinutes),
+                latitude,
+                longitude
+              },
+              ipAddress: request.ip
+            });
+          }
+        }
+
         await pool.query(
           `
             UPDATE customers
@@ -250,6 +292,39 @@ export async function updateMyLocation(request, response) {
 
   try {
     await client.query("BEGIN");
+
+    // Detect GPS Teleportation / Spoofing Anomaly (> 100km in < 10 mins)
+    const prevWorkerLoc = await client.query(
+      `
+        SELECT 
+          last_location_updated_at,
+          ROUND((ST_Distance(current_location, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography) / 1000)::numeric, 2) AS jump_km
+        FROM workers 
+        WHERE user_id = $3 AND current_location IS NOT NULL
+      `,
+      [data.latitude, data.longitude, request.user.sub]
+    );
+
+    if (prevWorkerLoc.rowCount > 0 && Number(prevWorkerLoc.rows[0].jump_km) > 100) {
+      const elapsedMinutes = (Date.now() - new Date(prevWorkerLoc.rows[0].last_location_updated_at).getTime()) / (1000 * 60);
+      if (elapsedMinutes < 10) {
+        triggerUnusualActivityAlert({
+          userId: request.user.sub,
+          userEmail: request.user.email,
+          anomalyType: "GPS_TELEPORTATION_SPOOFING",
+          threatCategory: "T",
+          severity: "CRITICAL",
+          description: `GPS Teleportation Anomaly: Worker jumped ${prevWorkerLoc.rows[0].jump_km} km in ${Math.round(elapsedMinutes)} min.`,
+          details: {
+            jumpKm: Number(prevWorkerLoc.rows[0].jump_km),
+            elapsedMinutes: Math.round(elapsedMinutes),
+            latitude: data.latitude,
+            longitude: data.longitude
+          },
+          ipAddress: request.ip
+        });
+      }
+    }
 
     const workerResult = await client.query(
       `
