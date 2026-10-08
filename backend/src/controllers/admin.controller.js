@@ -175,6 +175,8 @@ export async function getAuditLogs(request, response) {
           sub.details,
           sub.ip_address,
           sub.created_at,
+          u.name AS user_name,
+          u.role AS user_role,
           COALESCE(
             (sub.details->>'latitude')::numeric,
             ST_Y(c.current_location::geometry),

@@ -461,6 +461,8 @@ export default function AdminDashboard() {
                           const d = log.details || {};
                           const lat = log.pin_lat ?? d.latitude;
                           const lng = log.pin_lng ?? d.longitude;
+                          const role = log.user_role || d.role;
+                          const name = log.user_name || d.name;
 
                           if (lat && lng) {
                             return (
@@ -468,39 +470,28 @@ export default function AdminDashboard() {
                                 <span style={{ background: "#ecfdf5", color: "#047857", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", fontFamily: "monospace", fontSize: "0.76rem" }}>
                                   📍 {Number(lat).toFixed(4)}° N, {Number(lng).toFixed(4)}° E
                                 </span>
-                                {d.service && (
-                                  <span style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "500", color: "#334155" }}>
-                                    {d.service} ({d.radius || 10} km)
-                                  </span>
-                                )}
-                                {d.role && (
+                                {role && (
                                   <span style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", color: "#0f172a" }}>
-                                    {d.role}
+                                    {role}
                                   </span>
                                 )}
-                                {d.name && <span style={{ color: "#475569" }}>• {d.name}</span>}
+                                {name && <span style={{ color: "#475569" }}>• {name}</span>}
                                 {d.city && <span style={{ color: "#64748b" }}>• {d.city}</span>}
                               </span>
                             );
                           }
-                          if (d.role) {
+                          if (role) {
                             return (
                               <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
                                 <span style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", color: "#0f172a" }}>
-                                  {d.role}
+                                  {role}
                                 </span>
-                                {d.name && <span style={{ color: "#475569" }}>{d.name}</span>}
+                                {name && <span style={{ color: "#475569" }}>{name}</span>}
                                 {d.phone && <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>({d.phone})</span>}
                               </span>
                             );
                           }
-                          const entries = Object.entries(d);
-                          if (entries.length === 0) return <span style={{ color: "#94a3b8" }}>—</span>;
-                          return (
-                            <span style={{ color: "#475569" }}>
-                              {entries.map(([k, v]) => `${k}: ${v}`).join(" • ")}
-                            </span>
-                          );
+                          return <span style={{ color: "#94a3b8" }}>—</span>;
                         })()}
                       </td>
                     </tr>
