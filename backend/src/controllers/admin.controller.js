@@ -387,18 +387,30 @@ export async function getIpTrackingDetails(request, response) {
               u.email,
               u.name,
               u.role,
-              COALESCE(ST_Y(w.current_location::geometry), ST_Y(c.current_location::geometry)) AS lat,
-              COALESCE(ST_X(w.current_location::geometry), ST_X(c.current_location::geometry)) AS lng
+              COALESCE(
+                ST_Y(w.current_location::geometry), 
+                ST_Y(c.current_location::geometry),
+                (SELECT (al.details->>'latitude')::numeric FROM audit_logs al WHERE al.user_email = u.email AND al.details->>'latitude' IS NOT NULL ORDER BY al.created_at DESC LIMIT 1)
+              ) AS lat,
+              COALESCE(
+                ST_X(w.current_location::geometry), 
+                ST_X(c.current_location::geometry),
+                (SELECT (al.details->>'longitude')::numeric FROM audit_logs al WHERE al.user_email = u.email AND al.details->>'longitude' IS NOT NULL ORDER BY al.created_at DESC LIMIT 1)
+              ) AS lng
             FROM users u
             LEFT JOIN workers w ON w.user_id = u.id
             LEFT JOIN customers c ON c.user_id = u.id
             WHERE u.email = ANY($1) 
-              AND (w.current_location IS NOT NULL OR c.current_location IS NOT NULL)
+              AND (
+                w.current_location IS NOT NULL 
+                OR c.current_location IS NOT NULL
+                OR EXISTS (SELECT 1 FROM audit_logs al WHERE al.user_email = u.email AND al.details->>'latitude' IS NOT NULL)
+              )
             LIMIT 1
           `,
           [stats.users]
         );
-        if (gpsResult.rows.length > 0) {
+        if (gpsResult.rows.length > 0 && gpsResult.rows[0].lat && gpsResult.rows[0].lng) {
           const row = gpsResult.rows[0];
           deviceGps = {
             lat: Number(row.lat).toFixed(6),
@@ -411,6 +423,41 @@ export async function getIpTrackingDetails(request, response) {
         }
       } catch (gpsErr) {
         console.warn("GPS query error:", gpsErr.message);
+      }
+    }
+
+    // Fallback: check if any audit log event recorded under this IP contains latitude and longitude
+    if (!deviceGps) {
+      try {
+        const ipGpsResult = await pool.query(
+          `
+            SELECT 
+              user_email,
+              (details->>'latitude')::numeric AS lat,
+              (details->>'longitude')::numeric AS lng,
+              (details->>'name')::text AS name,
+              (details->>'role')::text AS role
+            FROM audit_logs
+            WHERE (ip_address = $1 OR ip_address = $2)
+              AND details->>'latitude' IS NOT NULL
+            ORDER BY created_at DESC
+            LIMIT 1
+          `,
+          [rawIp, ip]
+        );
+        if (ipGpsResult.rows.length > 0 && ipGpsResult.rows[0].lat && ipGpsResult.rows[0].lng) {
+          const row = ipGpsResult.rows[0];
+          deviceGps = {
+            lat: Number(row.lat).toFixed(6),
+            lng: Number(row.lng).toFixed(6),
+            name: row.name || row.user_email?.split("@")[0] || "Active User",
+            role: row.role || "CUSTOMER",
+            email: row.user_email,
+            mapsUrl: `https://www.google.com/maps?q=${row.lat},${row.lng}`
+          };
+        }
+      } catch (err) {
+        console.warn("IP audit GPS fallback error:", err.message);
       }
     }
 

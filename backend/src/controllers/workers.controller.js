@@ -1,5 +1,7 @@
 import { z } from "zod";
+import jwt from "jsonwebtoken";
 import { pool } from "../config/db.js";
+import { recordAuditLog } from "../utils/auditLogger.js";
 
 const nearbySchema = z.object({
   service: z.string().trim().min(2),
@@ -52,6 +54,37 @@ export async function getNearbyWorkers(request, response) {
 
   const { service, latitude, longitude, radius } = validation.data;
   const radiusMeters = radius * 1000;
+
+  // Capture and save customer's live device GPS if authenticated
+  const authHeader = request.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    try {
+      const token = authHeader.split(" ")[1];
+      const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+      if (payload && payload.sub) {
+        await pool.query(
+          `
+            UPDATE customers
+            SET current_location = ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography,
+                updated_at = NOW()
+            WHERE user_id = $3
+          `,
+          [latitude, longitude, payload.sub]
+        );
+
+        recordAuditLog({
+          userId: payload.sub,
+          userEmail: payload.email,
+          action: "CUSTOMER_GPS_SEARCH",
+          threatCategory: "R",
+          details: { service, radius, latitude, longitude },
+          ipAddress: request.ip
+        });
+      }
+    } catch {
+      // Non-blocking if guest or expired token
+    }
+  }
 
   try {
     const result = await pool.query(
