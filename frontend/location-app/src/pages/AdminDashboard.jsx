@@ -232,6 +232,10 @@ export default function AdminDashboard() {
       loadDashboard(); 
     } else {
       loadSecurityData();
+      const intervalId = setInterval(() => {
+        loadSecurityData();
+      }, 15000);
+      return () => clearInterval(intervalId);
     }
   }, [selectedService, search, page, activeTab]);
 

@@ -216,7 +216,8 @@ export async function register(request, response) {
       action: "USER_REGISTERED",
       threatCategory: "S",
       details: { role: user.role, name: user.name },
-      ipAddress: request.ip
+      ipAddress: request.ip,
+      upsert: true
     });
 
     return response.status(201).json({
@@ -301,7 +302,8 @@ export async function login(request, response) {
       action: "USER_LOGIN_SUCCESS",
       threatCategory: "S",
       details: { role: user.role, name: user.name, phone: user.phone },
-      ipAddress: request.ip
+      ipAddress: request.ip,
+      upsert: true
     });
 
     return response.json({

@@ -35,7 +35,7 @@ export async function recordAuditLog({
         SET 
           action = $6,
           threat_category = $3,
-          details = $1,
+          details = COALESCE(details, '{}'::jsonb) || $1::jsonb,
           ip_address = $2,
           created_at = NOW()
         WHERE (
