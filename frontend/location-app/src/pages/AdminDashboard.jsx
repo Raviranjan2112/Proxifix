@@ -706,7 +706,7 @@ export default function AdminDashboard() {
                       <td style={{ padding: "10px 14px", textAlign: "center", whiteSpace: "nowrap" }}>
                         {log.user_role === "ADMIN" ? (
                           <span style={{ fontSize: "0.72rem", fontWeight: "bold", color: "#6366f1", background: "#e0e7ff", padding: "3px 8px", borderRadius: "4px" }}>
-                            👑 ADMIN
+                            ADMIN
                           </span>
                         ) : log.user_is_active === false ? (
                           <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
