@@ -18,6 +18,7 @@ export default function WhatsAppOtpModal({
   const [successMsg, setSuccessMsg] = useState("");
   const [cooldown, setCooldown] = useState(0);
   const [simulatedCode, setSimulatedCode] = useState("");
+  const [isNotRegistered, setIsNotRegistered] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -28,6 +29,7 @@ export default function WhatsAppOtpModal({
       setOtp("");
       setCaptchaCode("");
       setSimulatedCode("");
+      setIsNotRegistered(false);
       loadCaptcha();
     }
   }, [isOpen, initialPhone]);
@@ -77,6 +79,7 @@ export default function WhatsAppOtpModal({
     setLoading(true);
 
     try {
+      setIsNotRegistered(false);
       const response = await api.post("/auth/otp/send", {
         mobile: cleanPhone,
         captchaId: captcha?.captchaId,
@@ -97,6 +100,9 @@ export default function WhatsAppOtpModal({
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "Failed to send verification code.";
       setError(msg);
+      if (err.response?.status === 404 || err.response?.data?.code === "USER_NOT_REGISTERED") {
+        setIsNotRegistered(true);
+      }
       loadCaptcha(); // Refresh CAPTCHA on error
       setCaptchaCode("");
     } finally {
@@ -169,6 +175,20 @@ export default function WhatsAppOtpModal({
         </div>
 
         {error && <div style={styles.errorBox}>{error}</div>}
+        {isNotRegistered && (
+          <div style={{ marginTop: 8, marginBottom: 12, textAlign: "center", padding: "10px", background: "#f8fafc", borderRadius: 8, border: "1px dashed #cbd5e1" }}>
+            <p style={{ margin: "0 0 8px", fontSize: "0.85rem", color: "#475569" }}>
+              Direct OTP login is reserved for registered users.
+            </p>
+            <a
+              href="/register"
+              className="btn btn-outline"
+              style={{ display: "inline-block", fontSize: "0.84rem", padding: "6px 14px", textDecoration: "none", color: "#075c31", borderColor: "#25d366" }}
+            >
+              📝 Create a ProxiFix Account
+            </a>
+          </div>
+        )}
         {successMsg && <div style={styles.successBox}>{successMsg}</div>}
 
         {/* Development Mode Hint */}

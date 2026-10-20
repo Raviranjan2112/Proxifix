@@ -8,11 +8,14 @@ import { defaultWhatsAppTransport } from "../services/whatsappOtp/whatsappTransp
 
 function normalizePhone(raw) {
   if (!raw) return "";
-  let clean = String(raw).trim();
-  if (!clean.startsWith("+")) {
-    clean = `+${clean.replace(/^0+/, "")}`;
+  let digits = String(raw).replace(/[^0-9]/g, "");
+  // If 10 digits provided (e.g. Indian mobile number), default to India (+91)
+  if (digits.length === 10) {
+    digits = `91${digits}`;
+  } else if (digits.length === 11 && digits.startsWith("0")) {
+    digits = `91${digits.slice(1)}`;
   }
-  return clean.replace(/[\s-]/g, "");
+  return `+${digits}`;
 }
 
 function createAccessToken(user) {
@@ -105,14 +108,17 @@ export async function sendOtp(request, response) {
     // 3. Database user existence checks
     if (purpose === "LOGIN") {
       const userResult = await pool.query(
-        `SELECT id, name, email, phone, role, is_active, blocked_reason FROM users WHERE phone = $1`,
+        `SELECT id, name, email, phone, role, is_active, blocked_reason 
+         FROM users 
+         WHERE phone = $1 OR RIGHT(phone, 10) = RIGHT($1, 10)`,
         [normPhone]
       );
 
       if (userResult.rowCount === 0) {
         return response.status(404).json({
           success: false,
-          message: "No registered account found with this phone number. Please register first.",
+          code: "USER_NOT_REGISTERED",
+          message: "No registered account found with this phone number. Please register first on ProxiFix.",
         });
       }
 
@@ -126,13 +132,14 @@ export async function sendOtp(request, response) {
       }
     } else if (purpose === "REGISTER") {
       const existingUser = await pool.query(
-        `SELECT id FROM users WHERE phone = $1`,
+        `SELECT id FROM users WHERE phone = $1 OR RIGHT(phone, 10) = RIGHT($1, 10)`,
         [normPhone]
       );
 
       if (existingUser.rowCount > 0) {
         return response.status(409).json({
           success: false,
+          code: "USER_ALREADY_REGISTERED",
           message: "This mobile number is already registered. Please log in instead.",
         });
       }
@@ -203,14 +210,17 @@ export async function verifyOtp(request, response) {
 
     if (purpose === "LOGIN") {
       const userResult = await pool.query(
-        `SELECT id, name, email, phone, role, is_active, blocked_reason FROM users WHERE phone = $1`,
+        `SELECT id, name, email, phone, role, is_active, blocked_reason 
+         FROM users 
+         WHERE phone = $1 OR RIGHT(phone, 10) = RIGHT($1, 10)`,
         [normPhone]
       );
 
       if (userResult.rowCount === 0) {
         return response.status(404).json({
           success: false,
-          message: "User account not found.",
+          code: "USER_NOT_REGISTERED",
+          message: "No registered account found with this phone number. Please register first on ProxiFix.",
         });
       }
 

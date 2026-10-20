@@ -92,6 +92,9 @@ export default function LoginPage() {
             <span style={{ fontSize: "1.2rem" }}>💬</span>
             Login with WhatsApp OTP (Passwordless)
           </button>
+          <p style={{ fontSize: "0.78rem", color: "#64748b", textAlign: "center", margin: "6px 0 0" }}>
+            * Direct login is available for registered phone numbers only
+          </p>
 
           <div
             style={{
