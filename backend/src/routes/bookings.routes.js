@@ -31,7 +31,7 @@ router.post(
 router.get(
   "/",
   authenticate,
-  allowRoles("CUSTOMER", "WORKER"),
+  allowRoles("CUSTOMER", "WORKER", "ADMIN"),
   getMyBookings
 );
 

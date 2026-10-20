@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import WhatsAppAdminHub from "../components/WhatsAppAdminHub.jsx";
 
 const emptySummary = { total_workers: 0, pending_workers: 0, approved_workers: 0, rejected_workers: 0 };
 
@@ -281,11 +282,20 @@ export default function AdminDashboard() {
           >
             🛡️ STRIDE & DREAD Security
           </button>
+          <button 
+            className={`btn ${activeTab === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`} 
+            type="button" 
+            onClick={() => setActiveTab('whatsapp')}
+          >
+            💬 WhatsApp OTP Hub
+          </button>
           <button className="btn btn-outline" type="button" onClick={handleLogout}>Logout</button>
         </nav>
       </header>
 
-      {activeTab === "workers" ? (
+      {activeTab === "whatsapp" ? (
+        <WhatsAppAdminHub />
+      ) : activeTab === "workers" ? (
         <section className="dashboard-section">
           <p className="eyebrow">Administrator</p>
           <h1>Welcome, {user?.name || "Admin"}</h1>

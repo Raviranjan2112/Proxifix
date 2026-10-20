@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import WhatsAppOtpModal from "../components/WhatsAppOtpModal.jsx";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -21,8 +22,11 @@ export default function RegisterPage() {
     serviceCategoryId: "",
     experienceYears: 0,
     minimumCharge: 0,
+    verificationToken: "",
   });
 
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -43,7 +47,24 @@ export default function RegisterPage() {
 
   function updateField(event) {
     const { name, value } = event.target;
-    setForm((current) => ({ ...current, [name]: value }));
+    if (name === "phone") {
+      setIsPhoneVerified(false);
+      setForm((current) => ({ ...current, phone: value, verificationToken: "" }));
+    } else {
+      setForm((current) => ({ ...current, [name]: value }));
+    }
+  }
+
+  function handleOtpVerified(data) {
+    if (data.verified && data.verificationToken) {
+      setForm((current) => ({
+        ...current,
+        phone: data.mobile,
+        verificationToken: data.verificationToken,
+      }));
+      setIsPhoneVerified(true);
+      setMessage("Mobile number verified via WhatsApp!");
+    }
   }
 
   async function handleSubmit(event) {
@@ -71,6 +92,7 @@ export default function RegisterPage() {
         phone,
         password: form.password,
         role: form.role,
+        verificationToken: form.verificationToken || undefined,
       };
 
       if (isWorker) {
@@ -126,15 +148,41 @@ export default function RegisterPage() {
 
           <label>
             Mobile number
-            <input
-              name="phone"
-              type="tel"
-              value={form.phone}
-              onChange={updateField}
-              placeholder="+919876543210"
-              autoComplete="tel"
-              required
-            />
+            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+              <input
+                name="phone"
+                type="tel"
+                value={form.phone}
+                onChange={updateField}
+                placeholder="+919876543210"
+                autoComplete="tel"
+                style={{ flex: 1 }}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowOtpModal(true)}
+                className="btn"
+                style={{
+                  backgroundColor: isPhoneVerified ? "#E8F5E9" : "#F1F8F4",
+                  border: isPhoneVerified ? "1px solid #1B5E20" : "1px solid #075C31",
+                  color: isPhoneVerified ? "#1B5E20" : "#075C31",
+                  fontSize: "0.85rem",
+                  fontWeight: "700",
+                  padding: "0 14px",
+                  borderRadius: 10,
+                  whiteSpace: "nowrap",
+                  cursor: "pointer",
+                }}
+              >
+                {isPhoneVerified ? "✅ Verified" : "💬 Verify via WhatsApp"}
+              </button>
+            </div>
+            {isPhoneVerified && (
+              <span style={{ fontSize: "0.8rem", color: "#166534", marginTop: 4, display: "block" }}>
+                ✓ Phone number verified with WhatsApp OTP
+              </span>
+            )}
           </label>
 
           <label>
@@ -213,12 +261,11 @@ export default function RegisterPage() {
                   required
                 />
               </label>
-
             </>
           )}
 
           {message && (
-            <p className={message.includes("successfully") ? "form-success" : "form-error"}>
+            <p className={message.includes("successfully") || message.includes("verified") ? "form-success" : "form-error"}>
               {message}
             </p>
           )}
@@ -232,6 +279,15 @@ export default function RegisterPage() {
           Already have an account? <Link to="/login">Login</Link>
         </p>
       </section>
+
+      {/* WhatsApp OTP Verification Modal */}
+      <WhatsAppOtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        initialPhone={form.phone}
+        purpose="REGISTER"
+        onSuccess={handleOtpVerified}
+      />
     </main>
   );
 }

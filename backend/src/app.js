@@ -42,6 +42,7 @@ const apiRateLimiter = rateLimit({
   max: Number(process.env.API_RATE_LIMIT_MAX || 1200),
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
   message: {
     success: false,
     message: "Too many requests. Please wait a moment and try again.",

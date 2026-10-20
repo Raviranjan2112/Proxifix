@@ -32,6 +32,11 @@ export function AuthProvider({ children }) {
     return response.data.user;
   }
 
+  function loginWithSession(token, loggedInUser) {
+    saveSession(token, loggedInUser);
+    return loggedInUser;
+  }
+
   async function register(formData) {
     const response = await api.post("/auth/register", formData);
 
@@ -52,7 +57,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loginWithSession }}>
       {children}
     </AuthContext.Provider>
   );

@@ -18,6 +18,7 @@ const registerSchema = z
       ),
     password: z.string().min(8).max(100),
     role: z.enum(["CUSTOMER", "WORKER"]),
+    verificationToken: z.string().optional(),
 
     address: z.string().trim().max(500).optional(),
     city: z.string().trim().max(120).optional(),
@@ -92,6 +93,25 @@ export async function register(request, response) {
   }
 
   const data = validation.data;
+
+  // If a WhatsApp phone verification token was supplied, cryptographically verify it
+  if (data.verificationToken) {
+    try {
+      const decoded = jwt.verify(data.verificationToken, process.env.JWT_ACCESS_SECRET);
+      if (decoded.verifiedPhone !== data.phone) {
+        return response.status(400).json({
+          success: false,
+          message: "The phone verification token does not match the registered phone number.",
+        });
+      }
+    } catch {
+      return response.status(400).json({
+        success: false,
+        message: "Phone verification token is invalid or expired. Please verify via WhatsApp again.",
+      });
+    }
+  }
+
   const client = await pool.connect();
 
   try {
@@ -215,7 +235,7 @@ export async function register(request, response) {
       userEmail: user.email,
       action: "USER_REGISTERED",
       threatCategory: "S",
-      details: { role: user.role, name: user.name },
+      details: { role: user.role, name: user.name, phoneVerified: !!data.verificationToken },
       ipAddress: request.ip,
       upsert: true
     });

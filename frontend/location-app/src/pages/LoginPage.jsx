@@ -1,15 +1,27 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import WhatsAppOtpModal from "../components/WhatsAppOtpModal.jsx";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, loginWithSession } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+
+  function handleAuthSuccess(user) {
+    if (user.role === "ADMIN") {
+      navigate("/admin");
+    } else if (user.role === "WORKER") {
+      navigate("/worker");
+    } else {
+      navigate("/customer");
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -18,14 +30,7 @@ export default function LoginPage() {
 
     try {
       const user = await login(email.trim(), password);
-
-     if (user.role === "ADMIN") {
-  navigate("/admin");
-} else if (user.role === "WORKER") {
-  navigate("/worker");
-} else {
-  navigate("/customer");
-}
+      handleAuthSuccess(user);
     } catch (error) {
       setMessage(
         error.response?.data?.message ||
@@ -34,6 +39,13 @@ export default function LoginPage() {
       );
     } finally {
       setLoading(false);
+    }
+  }
+
+  function handleOtpLoginSuccess(data) {
+    if (data.token && data.user) {
+      loginWithSession(data.token, data.user);
+      handleAuthSuccess(data.user);
     }
   }
 
@@ -54,6 +66,50 @@ export default function LoginPage() {
         <p className="eyebrow">Welcome back</p>
         <h1>Login to ProxiFix</h1>
         <p className="muted">Access your customer or worker account.</p>
+
+        {/* 💬 WhatsApp Instant OTP Option */}
+        <div style={{ marginTop: 14, marginBottom: 18 }}>
+          <button
+            type="button"
+            onClick={() => setShowOtpModal(true)}
+            className="btn"
+            style={{
+              width: "100%",
+              backgroundColor: "#EAF7EC",
+              border: "1.5px solid #25D366",
+              color: "#075C31",
+              fontWeight: "700",
+              fontSize: "0.98rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              padding: "12px 16px",
+              borderRadius: 12,
+              cursor: "pointer",
+            }}
+          >
+            <span style={{ fontSize: "1.2rem" }}>💬</span>
+            Login with WhatsApp OTP (Passwordless)
+          </button>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              textAlign: "center",
+              color: "#94A3B8",
+              fontSize: "0.82rem",
+              margin: "18px 0 14px",
+            }}
+          >
+            <div style={{ flex: 1, height: 1, backgroundColor: "#E2E8F0" }} />
+            <span style={{ padding: "0 10px", fontWeight: "600", textTransform: "uppercase" }}>
+              or with password
+            </span>
+            <div style={{ flex: 1, height: 1, backgroundColor: "#E2E8F0" }} />
+          </div>
+        </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <label>
@@ -83,7 +139,7 @@ export default function LoginPage() {
           {message && <p className="form-error">{message}</p>}
 
           <button className="btn btn-primary" disabled={loading} type="submit">
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Logging in..." : "Login with Password"}
           </button>
         </form>
 
@@ -91,6 +147,14 @@ export default function LoginPage() {
           Do not have an account? <Link to="/register">Create account</Link>
         </p>
       </section>
+
+      {/* WhatsApp OTP Verification Modal */}
+      <WhatsAppOtpModal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        purpose="LOGIN"
+        onSuccess={handleOtpLoginSuccess}
+      />
     </main>
   );
 }
