@@ -18,7 +18,11 @@ const registerSchema = z
       ),
     password: z.string().min(8).max(100),
     role: z.enum(["CUSTOMER", "WORKER"]),
-    verificationToken: z.string().optional(),
+    verificationToken: z
+      .string({
+        required_error: "WhatsApp phone verification is required.",
+      })
+      .min(10, "Please verify your mobile number via WhatsApp."),
 
     address: z.string().trim().max(500).optional(),
     city: z.string().trim().max(120).optional(),
@@ -94,22 +98,33 @@ export async function register(request, response) {
 
   const data = validation.data;
 
-  // If a WhatsApp phone verification token was supplied, cryptographically verify it
-  if (data.verificationToken) {
-    try {
-      const decoded = jwt.verify(data.verificationToken, process.env.JWT_ACCESS_SECRET);
-      if (decoded.verifiedPhone !== data.phone) {
-        return response.status(400).json({
-          success: false,
-          message: "The phone verification token does not match the registered phone number.",
-        });
-      }
-    } catch {
+  // Cryptographically verify mandatory WhatsApp phone verification token
+  if (!data.verificationToken) {
+    return response.status(400).json({
+      success: false,
+      message: "WhatsApp phone verification is required. Please verify your mobile number via WhatsApp first.",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(data.verificationToken, process.env.JWT_ACCESS_SECRET);
+    const normTokenPhone = (decoded.verifiedPhone || "").replace(/[^0-9]/g, "");
+    const normDataPhone = (data.phone || "").replace(/[^0-9]/g, "");
+
+    if (
+      decoded.verifiedPhone !== data.phone &&
+      normTokenPhone.slice(-10) !== normDataPhone.slice(-10)
+    ) {
       return response.status(400).json({
         success: false,
-        message: "Phone verification token is invalid or expired. Please verify via WhatsApp again.",
+        message: "The verified WhatsApp number does not match the registered phone number.",
       });
     }
+  } catch {
+    return response.status(400).json({
+      success: false,
+      message: "Phone verification token is invalid or expired. Please verify via WhatsApp again.",
+    });
   }
 
   const client = await pool.connect();

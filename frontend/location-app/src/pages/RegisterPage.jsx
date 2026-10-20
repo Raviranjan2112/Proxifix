@@ -78,6 +78,12 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!isPhoneVerified || !form.verificationToken) {
+      setMessage("⚠️ WhatsApp verification is mandatory. Please verify your mobile number via WhatsApp before creating an account.");
+      setShowOtpModal(true);
+      return;
+    }
+
     if (isWorker && !form.serviceCategoryId) {
       setMessage("Please select your service category.");
       return;
@@ -165,7 +171,7 @@ export default function RegisterPage() {
                 className="btn"
                 style={{
                   backgroundColor: isPhoneVerified ? "#E8F5E9" : "#F1F8F4",
-                  border: isPhoneVerified ? "1px solid #1B5E20" : "1px solid #075C31",
+                  border: isPhoneVerified ? "1.5px solid #1B5E20" : "1.5px solid #075C31",
                   color: isPhoneVerified ? "#1B5E20" : "#075C31",
                   fontSize: "0.85rem",
                   fontWeight: "700",
@@ -175,12 +181,16 @@ export default function RegisterPage() {
                   cursor: "pointer",
                 }}
               >
-                {isPhoneVerified ? "✅ Verified" : "💬 Verify via WhatsApp"}
+                {isPhoneVerified ? "✅ Verified" : "💬 Verify via WhatsApp *"}
               </button>
             </div>
-            {isPhoneVerified && (
-              <span style={{ fontSize: "0.8rem", color: "#166534", marginTop: 4, display: "block" }}>
+            {isPhoneVerified ? (
+              <span style={{ fontSize: "0.8rem", color: "#166534", marginTop: 4, display: "block", fontWeight: "600" }}>
                 ✓ Phone number verified with WhatsApp OTP
+              </span>
+            ) : (
+              <span style={{ fontSize: "0.8rem", color: "#b45309", marginTop: 4, display: "block" }}>
+                * Mandatory: Click "Verify via WhatsApp" to receive your 6-digit code
               </span>
             )}
           </label>
@@ -271,7 +281,11 @@ export default function RegisterPage() {
           )}
 
           <button className="btn btn-primary" disabled={loading} type="submit">
-            {loading ? "Creating account..." : "Create account"}
+            {loading
+              ? "Creating account..."
+              : !isPhoneVerified
+              ? "Verify WhatsApp & Join ProxiFix"
+              : `Join ProxiFix as ${isWorker ? "Worker" : "Customer"}`}
           </button>
         </form>
 
