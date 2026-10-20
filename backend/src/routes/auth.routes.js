@@ -6,6 +6,7 @@ import {
   verifyOtp,
   getWhatsAppStatus,
   reconnectWhatsApp,
+  disconnectWhatsApp,
 } from "../controllers/otp.controller.js";
 
 const router = Router();
@@ -22,5 +23,6 @@ router.post("/otp/verify", verifyOtp);
 // Admin WhatsApp Device Pairing
 router.get("/otp/whatsapp/status", getWhatsAppStatus);
 router.post("/otp/whatsapp/reconnect", reconnectWhatsApp);
+router.post("/otp/whatsapp/disconnect", disconnectWhatsApp);
 
 export default router;

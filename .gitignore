@@ -75,3 +75,12 @@ backend/uploads/*
 # dataconnect generated files
 .dataconnect
 
+# WhatsApp session data and BerryProtocol sqlite database
+berrysdk.db*
+backend/berrysdk.db*
+data/whatsapp_session*
+backend/data/whatsapp_session*
+data/
+backend/data/
+
+

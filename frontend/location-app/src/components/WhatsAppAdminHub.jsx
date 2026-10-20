@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../services/api.js";
 
 export default function WhatsAppAdminHub() {
@@ -9,13 +9,34 @@ export default function WhatsAppAdminHub() {
     qrDataUrl: null,
   });
   const [loading, setLoading] = useState(false);
-  const [testMobile, setTestMobile] = useState("+91");
-  const [testResult, setTestResult] = useState(null);
-  const [testLoading, setTestLoading] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [backendError, setBackendError] = useState(null);
+  const pollTimerRef = useRef(null);
 
   useEffect(() => {
     loadStatus();
+    return () => {
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    };
   }, []);
+
+  // When QR code is visible, poll status every 3s to auto-detect when admin scans it
+  useEffect(() => {
+    if (waStatus.qrDataUrl && waStatus.status !== "CONNECTED") {
+      pollTimerRef.current = setInterval(() => {
+        loadStatusSilent();
+      }, 3000);
+    } else {
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+    };
+  }, [waStatus.qrDataUrl, waStatus.status]);
 
   async function loadStatus() {
     try {
@@ -23,54 +44,80 @@ export default function WhatsAppAdminHub() {
       const res = await api.get("/auth/otp/whatsapp/status");
       if (res.data?.success) {
         setWaStatus(res.data);
+        setBackendError(null);
       }
     } catch (err) {
       console.warn("Could not load WhatsApp status:", err);
+      setBackendError(
+        err.response?.data?.message ||
+        err.message ||
+        "Backend server is offline or unreachable."
+      );
     } finally {
       setLoading(false);
     }
+  }
+
+  async function loadStatusSilent() {
+    try {
+      const res = await api.get("/auth/otp/whatsapp/status");
+      if (res.data?.success) {
+        setWaStatus(res.data);
+      }
+    } catch {}
   }
 
   async function triggerPairing() {
     try {
       setLoading(true);
-      await api.post("/auth/otp/whatsapp/reconnect");
-      setTimeout(loadStatus, 2000);
+      setBackendError(null);
+      const res = await api.post("/auth/otp/whatsapp/reconnect");
+      if (res.data?.success) {
+        setWaStatus({
+          status: res.data.status || "QR_READY",
+          phoneNumber: res.data.phoneNumber || null,
+          isSimulated: res.data.isSimulated ?? false,
+          qrDataUrl: res.data.qrDataUrl,
+        });
+
+        // If for some reason qrDataUrl was not ready in the response, poll immediately
+        if (!res.data.qrDataUrl) {
+          setTimeout(loadStatusSilent, 1200);
+          setTimeout(loadStatusSilent, 2500);
+        }
+      }
     } catch (err) {
-      alert("Failed to initialize pairing: " + (err.response?.data?.message || err.message));
+      const errorMsg =
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to initialize pairing. Make sure backend API is reachable.";
+      setBackendError(errorMsg);
+      alert("WhatsApp Pairing Error: " + errorMsg);
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleTestSend(e) {
-    e.preventDefault();
-    setTestResult(null);
-    setTestLoading(true);
+  async function handleDisconnect() {
+    if (!window.confirm("Are you sure you want to unlink and disconnect this WhatsApp device?")) {
+      return;
+    }
 
     try {
-      // First get a CAPTCHA automatically for admin sandbox
-      const captchaRes = await api.get("/auth/otp/captcha");
-      // For admin sandbox test, send directly via backend test
-      const res = await api.post("/auth/otp/send", {
-        mobile: testMobile.trim(),
-        captchaId: captchaRes.data?.captchaId,
-        captchaCode: "ADMIN", // admin bypass or test
-        purpose: "REGISTER",
-      });
-
-      setTestResult({
-        success: true,
-        message: res.data?.message || "Test OTP dispatched successfully!",
-        data: res.data,
-      });
+      setDisconnecting(true);
+      const res = await api.post("/auth/otp/whatsapp/disconnect");
+      if (res.data?.success) {
+        setWaStatus({
+          status: "DISCONNECTED",
+          phoneNumber: null,
+          isSimulated: true,
+          qrDataUrl: null,
+        });
+      }
     } catch (err) {
-      setTestResult({
-        success: false,
-        message: err.response?.data?.message || err.message || "Failed to send test OTP.",
-      });
+      alert("Failed to disconnect: " + (err.response?.data?.message || err.message));
     } finally {
-      setTestLoading(false);
+      setDisconnecting(false);
     }
   }
 
@@ -83,6 +130,26 @@ export default function WhatsAppAdminHub() {
       <p className="dashboard-intro">
         Autonomous WhatsApp socket engine powered by Berry Protocol. Dispatches high-speed 6-digit verification codes worldwide with zero SMS carrier fees.
       </p>
+
+      {backendError && (
+        <div
+          style={{
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            color: "#991b1b",
+            padding: "14px 18px",
+            borderRadius: "10px",
+            marginBottom: "1.5rem",
+            fontSize: "0.9rem",
+            lineHeight: 1.5,
+          }}
+        >
+          <strong>⚠️ Backend Connection Notice:</strong> {backendError}
+          <div style={{ marginTop: "4px", fontSize: "0.82rem", color: "#b91c1c" }}>
+            If you are running on production (Vercel), ensure your backend server is deployed and configured in <code>VITE_API_URL</code>. For local testing, verify your Express backend is running on <code>http://localhost:4000</code>.
+          </div>
+        </div>
+      )}
 
       {/* Summary KPI Cards */}
       <div className="dashboard-grid admin-summary-grid">
@@ -109,6 +176,8 @@ export default function WhatsAppAdminHub() {
             <p className="summary-value" style={{ fontSize: "1.1rem" }}>
               {isConnected
                 ? `Connected (+${waStatus.phoneNumber || "Device"})`
+                : waStatus.qrDataUrl
+                ? "Scan QR Code"
                 : waStatus.isSimulated
                 ? "Dev Simulation Mode"
                 : waStatus.status}
@@ -153,23 +222,59 @@ export default function WhatsAppAdminHub() {
               <p style={{ color: "#15803d", fontSize: "1rem", margin: "8px 0 0" }}>
                 Paired Device: <strong>+{waStatus.phoneNumber || "Active"}</strong>
               </p>
-              <p style={{ color: "#64748b", fontSize: "0.84rem", margin: "8px 0 0" }}>
+              <p style={{ color: "#64748b", fontSize: "0.84rem", margin: "8px 0 16px" }}>
                 Verification codes are streaming live through this WhatsApp session.
               </p>
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={handleDisconnect}
+                disabled={disconnecting}
+                style={{ fontSize: "0.85rem", color: "#dc2626", borderColor: "#fca5a5" }}
+              >
+                {disconnecting ? "Unlinking..." : "Disconnect / Unlink Device"}
+              </button>
             </div>
           ) : waStatus.qrDataUrl ? (
-            <div style={{ textAlign: "center", padding: "20px", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-              <img
-                src={waStatus.qrDataUrl}
-                alt="WhatsApp QR Code"
-                style={{ width: 230, height: 230, margin: "0 auto", borderRadius: "8px", border: "1px solid #cbd5e1" }}
-              />
-              <p style={{ margin: "14px 0 4px", fontSize: "0.95rem", fontWeight: "700", color: "#0f172a" }}>
-                1. Open WhatsApp &gt; Linked Devices &gt; Link a Device
-              </p>
-              <p style={{ margin: 0, fontSize: "0.82rem", color: "#64748b" }}>
-                2. Scan this QR code to authorize OTP delivery for ProxiFix.
-              </p>
+            <div style={{ textAlign: "center", padding: "24px 20px", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+              <div style={{ display: "inline-block", padding: "12px", background: "#ffffff", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+                <img
+                  src={waStatus.qrDataUrl}
+                  alt="WhatsApp Pairing QR Code"
+                  style={{ width: 260, height: 260, display: "block", borderRadius: "8px" }}
+                />
+              </div>
+              <div style={{ marginTop: "16px" }}>
+                <p style={{ margin: "0 0 6px", fontSize: "1rem", fontWeight: "700", color: "#0f172a" }}>
+                  Scan with your WhatsApp App:
+                </p>
+                <p style={{ margin: 0, fontSize: "0.86rem", color: "#475569", lineHeight: 1.6 }}>
+                  1. Open WhatsApp on your phone.<br />
+                  2. Go to <strong>Settings</strong> &gt; <strong>Linked Devices</strong> &gt; <strong>Link a Device</strong>.<br />
+                  3. Point your camera at this QR code.
+                </p>
+              </div>
+
+              <div style={{ marginTop: "18px", display: "flex", gap: "10px", justifyContent: "center" }}>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={triggerPairing}
+                  disabled={loading}
+                  style={{ fontSize: "0.82rem" }}
+                >
+                  {loading ? "Refreshing..." : "🔄 Generate New QR"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={handleDisconnect}
+                  disabled={disconnecting}
+                  style={{ fontSize: "0.82rem" }}
+                >
+                  Cancel Pairing
+                </button>
+              </div>
             </div>
           ) : (
             <div style={{ textAlign: "center", padding: "36px 16px", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
@@ -185,7 +290,7 @@ export default function WhatsAppAdminHub() {
                 disabled={loading}
                 style={{ padding: "10px 20px", fontWeight: "700" }}
               >
-                {loading ? "Initializing..." : "📲 Connect Real WhatsApp Device"}
+                {loading ? "⏳ Connecting Socket & Generating QR..." : "📲 Connect Real WhatsApp Device"}
               </button>
             </div>
           )}

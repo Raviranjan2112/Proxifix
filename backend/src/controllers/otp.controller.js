@@ -295,9 +295,33 @@ export async function getWhatsAppStatus(request, response) {
 export async function reconnectWhatsApp(request, response) {
   try {
     await defaultWhatsAppTransport.initialize();
+    const qr = await defaultWhatsAppTransport.waitForQrCode(3500);
+    const info = defaultWhatsAppTransport.getClientInfo();
     return response.json({
       success: true,
       message: "WhatsApp socket initialization triggered.",
+      status: info.status,
+      phoneNumber: info.phoneNumber,
+      isSimulated: info.isSimulated,
+      qrDataUrl: qr?.dataUrl || null,
+    });
+  } catch (error) {
+    return response.status(500).json({ success: false, message: error.message });
+  }
+}
+
+/**
+ * POST /api/auth/otp/whatsapp/disconnect
+ * Admin-facing endpoint to unpair and disconnect WhatsApp device.
+ */
+export async function disconnectWhatsApp(request, response) {
+  try {
+    await defaultWhatsAppTransport.disconnect();
+    return response.json({
+      success: true,
+      message: "WhatsApp session unlinked and disconnected.",
+      status: "DISCONNECTED",
+      qrDataUrl: null,
     });
   } catch (error) {
     return response.status(500).json({ success: false, message: error.message });
