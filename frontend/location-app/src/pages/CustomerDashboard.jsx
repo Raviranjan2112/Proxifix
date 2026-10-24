@@ -174,9 +174,13 @@ export default function CustomerDashboard() {
       };
 
       if (bookingForm.scheduledTime) {
-        payload.scheduledTime = new Date(
-          bookingForm.scheduledTime
-        ).toISOString();
+        const scheduledDate = new Date(bookingForm.scheduledTime);
+        if (scheduledDate.getTime() < Date.now() - 2 * 60 * 1000) {
+          setMessage("Scheduled booking time cannot be in the past. Please select a future date and time.");
+          setLoading(false);
+          return;
+        }
+        payload.scheduledTime = scheduledDate.toISOString();
       }
 
       const response = await api.post("/bookings", payload);
@@ -604,6 +608,7 @@ export default function CustomerDashboard() {
                 <input
                   name="scheduledTime"
                   type="datetime-local"
+                  min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                   value={bookingForm.scheduledTime}
                   onChange={updateBookingForm}
                 />

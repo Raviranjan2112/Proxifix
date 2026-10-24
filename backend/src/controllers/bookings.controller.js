@@ -10,7 +10,10 @@ const createBookingSchema = z.object({
   customerAddress: z.string().trim().min(5).max(500),
   customerLatitude: z.coerce.number().min(-90).max(90),
   customerLongitude: z.coerce.number().min(-180).max(180),
-  scheduledTime: z.string().datetime().optional(),
+  scheduledTime: z.string().datetime().optional().refine(
+    (val) => !val || new Date(val).getTime() >= Date.now() - 5 * 60 * 1000,
+    { message: "Scheduled booking time cannot be in the past." }
+  ),
 });
 
 const statusSchema = z.object({
