@@ -5,7 +5,7 @@ import ServiceTrackingMap from "../components/ServiceTrackingMap.jsx";
 import { getCurrentLocation } from "../hooks/useCurrentLocation.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ThemeToggle } from "../context/ThemeContext.jsx";
-import { LogOut, Search, MapPin, Star } from "lucide-react";
+import { LogOut, Search, MapPin, Star, CheckCircle2, AlertCircle, Info, X, ShieldCheck, ArrowRight } from "lucide-react";
 
 export default function CustomerDashboard() {
   const { user, logout } = useAuth();
@@ -325,9 +325,21 @@ export default function CustomerDashboard() {
         </p>
 
         {message && (
-          <p className={message.includes("successfully") ? "form-success" : "muted"}>
-            {message}
-          </p>
+          <div className={`toast-banner ${message.toLowerCase().includes("success") || message.includes("found") ? "toast-success" : message.toLowerCase().includes("cannot") || message.toLowerCase().includes("could not") || message.toLowerCase().includes("failed") || message.toLowerCase().includes("error") ? "toast-error" : "toast-info"}`}>
+            <div className="toast-content">
+              {message.toLowerCase().includes("success") || message.includes("found") ? (
+                <CheckCircle2 size={18} className="toast-icon" />
+              ) : message.toLowerCase().includes("cannot") || message.toLowerCase().includes("could not") || message.toLowerCase().includes("failed") || message.toLowerCase().includes("error") ? (
+                <AlertCircle size={18} className="toast-icon" />
+              ) : (
+                <Info size={18} className="toast-icon" />
+              )}
+              <span>{message}</span>
+            </div>
+            <button type="button" className="toast-close" onClick={() => setMessage("")} aria-label="Dismiss message">
+              <X size={15} />
+            </button>
+          </div>
         )}
 
         {notifications.length > 0 && (
@@ -534,50 +546,96 @@ export default function CustomerDashboard() {
         {hasSearched && (
         <section className="worker-results" ref={workerResultsRef}>
           <h2>Available nearby workers</h2>
-          <p className="muted">{workers.length > 0 ? "Choose a worker to open the booking form." : message}</p>
+          <p className="muted">{loading ? "Locating verified workers in your area..." : workers.length > 0 ? "Choose a worker below to initiate booking." : "No workers found in this range."}</p>
           <div className="worker-grid">
-            {workers.length === 0 && (
+            {loading ? (
+              [1, 2, 3].map((n) => (
+                <article className="worker-card skeleton-card" key={`skel-${n}`}>
+                  <div className="skeleton-avatar shimmer" />
+                  <div className="skeleton-details">
+                    <div className="skeleton-line shimmer title" />
+                    <div className="skeleton-line shimmer subtitle" />
+                    <div className="skeleton-line shimmer tag" />
+                    <div className="skeleton-btn shimmer" />
+                  </div>
+                </article>
+              ))
+            ) : workers.length === 0 ? (
               <article className="worker-card">
                 <div>
                   <h3>No workers available yet</h3>
-                  <p>Try a larger radius or choose a different service category.</p>
+                  <p>Try expanding your search radius or select another category.</p>
                 </div>
               </article>
+            ) : (
+              workers.map((worker) => (
+                <article className="worker-card" key={worker.id}>
+                  <div className="worker-avatar">
+                    {worker.name?.charAt(0)?.toUpperCase() || "W"}
+                  </div>
+
+                  <div>
+                    <div className="worker-header">
+                      <h3>{worker.name}</h3>
+                      <span className="badge-verified"><ShieldCheck size={12} /> Verified</span>
+                    </div>
+                    <p className="worker-service-tag">{worker.service}</p>
+                    <div className="worker-meta-row">
+                      <span>⭐ {Number(worker.rating || 0).toFixed(1)} rating</span>
+                      <span>📍 {Number(worker.distanceKm).toFixed(1)} km away</span>
+                    </div>
+                    <div className="worker-price-row">
+                      <span className="price-tag">₹{worker.minimumCharge} <small>base</small></span>
+                      <span className="available">Available now</span>
+                    </div>
+
+                    <button
+                      className="btn btn-primary booking-action"
+                      type="button"
+                      onClick={() => openBookingForm(worker)}
+                    >
+                      Book {worker.name} <ArrowRight size={15} />
+                    </button>
+                  </div>
+                </article>
+              ))
             )}
-            {workers.map((worker) => (
-              <article className="worker-card" key={worker.id}>
-                <div className="worker-avatar">
-                  {worker.name?.charAt(0)?.toUpperCase() || "W"}
-                </div>
-
-                <div>
-                  <h3>{worker.name}</h3>
-                  <p>{worker.service}</p>
-                  <p>⭐ {Number(worker.rating || 0).toFixed(1)} rating</p>
-                  <p>📍 {Number(worker.distanceKm).toFixed(1)} km away</p>
-                  <p>₹{worker.minimumCharge} starting price</p>
-                  <span className="available">Available now</span>
-
-                  <button
-                    className="btn btn-primary booking-action"
-                    type="button"
-                    onClick={() => openBookingForm(worker)}
-                  >
-                    Book {worker.name}
-                  </button>
-                </div>
-              </article>
-            ))}
           </div>
         </section>
         )}
 
         {selectedWorker && (
           <section className="booking-form-card" ref={bookingFormRef}>
+            <p className="eyebrow">Booking confirmation</p>
             <h2>Book {selectedWorker.name}</h2>
-            <p className="muted">
-              {selectedWorker.service} · ₹{selectedWorker.minimumCharge} starting price
-            </p>
+
+            <div className="booking-summary-box">
+              <div className="booking-summary-avatar">
+                {selectedWorker.name?.charAt(0)?.toUpperCase() || "W"}
+              </div>
+              <div>
+                <div className="worker-header">
+                  <strong>{selectedWorker.name}</strong>
+                  <span className="badge-verified"><ShieldCheck size={12} /> Verified</span>
+                </div>
+                <p className="worker-service-tag">{selectedWorker.service} · {Number(selectedWorker.distanceKm || 0).toFixed(1)} km away</p>
+              </div>
+            </div>
+
+            <div className="booking-price-breakdown">
+              <div className="price-row">
+                <span>Worker starting fee</span>
+                <span>₹{selectedWorker.minimumCharge}</span>
+              </div>
+              <div className="price-row">
+                <span>Platform safety & guarantee fee</span>
+                <span>₹10</span>
+              </div>
+              <div className="price-row total">
+                <span>Total estimated booking</span>
+                <span>₹{Number(selectedWorker.minimumCharge) + 10}</span>
+              </div>
+            </div>
 
             <form className="auth-form" onSubmit={submitBooking}>
               <label>

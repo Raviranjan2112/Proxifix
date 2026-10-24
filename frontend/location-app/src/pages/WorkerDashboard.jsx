@@ -5,7 +5,7 @@ import ServiceTrackingMap from "../components/ServiceTrackingMap.jsx";
 import { getCurrentLocation } from "../hooks/useCurrentLocation.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ThemeToggle } from "../context/ThemeContext.jsx";
-import { ShieldCheck, Radio, Star, LogOut, Bell } from "lucide-react";
+import { ShieldCheck, Radio, Star, LogOut, Bell, CheckCircle2, AlertCircle, Info, X } from "lucide-react";
 
 const nextStatus = {
   PENDING: { label: "Accept booking", value: "ACCEPTED" },
@@ -285,7 +285,23 @@ export default function WorkerDashboard() {
           Control your availability and manage your service requests.
         </p>
 
-        {message && <p className={messageClass}>{message}</p>}
+        {message && (
+          <div className={`toast-banner ${messageClass === "form-success" ? "toast-success" : messageClass === "form-error" ? "toast-error" : "toast-info"}`}>
+            <div className="toast-content">
+              {messageClass === "form-success" ? (
+                <CheckCircle2 size={18} className="toast-icon" />
+              ) : messageClass === "form-error" ? (
+                <AlertCircle size={18} className="toast-icon" />
+              ) : (
+                <Info size={18} className="toast-icon" />
+              )}
+              <span>{message}</span>
+            </div>
+            <button type="button" className="toast-close" onClick={() => setMessage("")} aria-label="Dismiss message">
+              <X size={15} />
+            </button>
+          </div>
+        )}
 
         {notifications.length > 0 && (
           <section className="notification-panel" aria-live="polite">
