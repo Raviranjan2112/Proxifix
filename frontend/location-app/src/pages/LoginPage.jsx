@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { ThemeToggle } from "../context/ThemeContext.jsx";
+import { MessageSquare, Lock, Mail, LogIn } from "lucide-react";
 import WhatsAppOtpModal from "../components/WhatsAppOtpModal.jsx";
 
 export default function LoginPage() {
@@ -59,6 +61,7 @@ export default function LoginPage() {
         <nav className="nav-actions">
           <Link className="nav-link" to="/">Home</Link>
           <Link className="nav-link" to="/register">Create Account</Link>
+          <ThemeToggle />
         </nav>
       </header>
 
@@ -67,7 +70,7 @@ export default function LoginPage() {
         <h1>Login to ProxiFix</h1>
         <p className="muted">Access your customer or worker account.</p>
 
-        {/* 💬 WhatsApp Instant OTP Option */}
+        {/* WhatsApp Instant OTP Option */}
         <div style={{ marginTop: 14, marginBottom: 18 }}>
           <button
             type="button"
@@ -75,24 +78,25 @@ export default function LoginPage() {
             className="btn"
             style={{
               width: "100%",
-              backgroundColor: "#EAF7EC",
-              border: "1.5px solid #25D366",
-              color: "#075C31",
+              backgroundColor: "var(--primary-light)",
+              border: "1.5px solid var(--primary)",
+              color: "var(--primary)",
               fontWeight: "700",
-              fontSize: "0.98rem",
+              fontSize: "0.95rem",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
               padding: "12px 16px",
-              borderRadius: 12,
+              borderRadius: "var(--radius-md)",
               cursor: "pointer",
+              transition: "all 0.15s ease",
             }}
           >
-            <span style={{ fontSize: "1.2rem" }}>💬</span>
+            <MessageSquare size={18} />
             Login with WhatsApp OTP (Passwordless)
           </button>
-          <p style={{ fontSize: "0.78rem", color: "#64748b", textAlign: "center", margin: "6px 0 0" }}>
+          <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", textAlign: "center", margin: "6px 0 0" }}>
             * Direct login is available for registered phone numbers only
           </p>
 

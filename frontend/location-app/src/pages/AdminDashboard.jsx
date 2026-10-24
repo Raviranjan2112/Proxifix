@@ -2,7 +2,25 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { ThemeToggle } from "../context/ThemeContext.jsx";
 import WhatsAppAdminHub from "../components/WhatsAppAdminHub.jsx";
+import {
+  Users,
+  ShieldAlert,
+  MessageSquare,
+  LogOut,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
+  FileText,
+  Lock,
+  Zap,
+  Mail,
+  Phone,
+  Wrench,
+  Briefcase,
+} from "lucide-react";
 
 const emptySummary = { total_workers: 0, pending_workers: 0, approved_workers: 0, rejected_workers: 0 };
 
@@ -273,23 +291,26 @@ export default function AdminDashboard() {
             type="button" 
             onClick={() => setActiveTab('workers')}
           >
-            👥 Workers
+            <Users size={16} /> Workers
           </button>
           <button 
             className={`btn ${activeTab === 'security' ? 'btn-primary' : 'btn-outline'}`} 
             type="button" 
             onClick={() => setActiveTab('security')}
           >
-            🛡️ STRIDE & DREAD Security
+            <ShieldAlert size={16} /> Security Center
           </button>
           <button 
             className={`btn ${activeTab === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`} 
             type="button" 
             onClick={() => setActiveTab('whatsapp')}
           >
-            💬 WhatsApp OTP Hub
+            <MessageSquare size={16} /> WhatsApp OTP Hub
           </button>
-          <button className="btn btn-outline" type="button" onClick={handleLogout}>Logout</button>
+          <ThemeToggle />
+          <button className="btn btn-outline" type="button" onClick={handleLogout}>
+            <LogOut size={15} /> Logout
+          </button>
         </nav>
       </header>
 
@@ -302,10 +323,10 @@ export default function AdminDashboard() {
           <p className="dashboard-intro">Review service professionals, monitor registrations by service, and keep customers safe.</p>
 
           <div className="dashboard-grid admin-summary-grid">
-            <SummaryCard icon="👷" title="Total Workers" value={summary.total_workers} />
-            <SummaryCard icon="⌛" title="Pending Approval" value={summary.pending_workers} />
-            <SummaryCard icon="✅" title="Approved Workers" value={summary.approved_workers} />
-            <SummaryCard icon="⛔" title="Rejected Workers" value={summary.rejected_workers} />
+            <SummaryCard icon={<Users size={20} />} title="Total Workers" value={summary.total_workers} />
+            <SummaryCard icon={<Clock size={20} />} title="Pending Approval" value={summary.pending_workers} />
+            <SummaryCard icon={<CheckCircle2 size={20} />} title="Approved Workers" value={summary.approved_workers} />
+            <SummaryCard icon={<XCircle size={20} />} title="Rejected Workers" value={summary.rejected_workers} />
           </div>
 
           <SectionTitle eyebrow="Service overview" title="Registered workers by service" description="See exactly how many workers offer each service." />
@@ -360,10 +381,10 @@ export default function AdminDashboard() {
           <p className="dashboard-intro">Live security auditing, non-repudiation tracking logs, and defensive mitigations matrix.</p>
 
           <div className="dashboard-grid admin-summary-grid">
-            <SummaryCard icon="🛡️" title="Threat Model" value="STRIDE + DREAD" />
-            <SummaryCard icon="📜" title="Audit Records" value={auditLogs.length} />
-            <SummaryCard icon="🔒" title="Auth Algorithm" value="JWT (HS256)" />
-            <SummaryCard icon="⚡" title="Spatial Security" value="PostGIS GiST" />
+            <SummaryCard icon={<ShieldCheck size={20} />} title="Threat Model" value="STRIDE + DREAD" />
+            <SummaryCard icon={<FileText size={20} />} title="Audit Records" value={auditLogs.length} />
+            <SummaryCard icon={<Lock size={20} />} title="Auth Algorithm" value="JWT (HS256)" />
+            <SummaryCard icon={<Zap size={20} />} title="Spatial Security" value="PostGIS GiST" />
           </div>
 
           <SectionTitle 
@@ -983,7 +1004,21 @@ export default function AdminDashboard() {
 }
 
 function SummaryCard({ icon, title, value }) {
-  return <article className="card admin-summary-card dashboard-hover-card"><span className="service-icon">{icon}</span><h2>{title}</h2><p className="admin-stat">{value}</p></article>;
+  return (
+    <article className="card admin-summary-card" style={{ padding: "20px 22px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+        <p style={{ margin: 0, fontSize: "0.82rem", fontWeight: "600", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+          {title}
+        </p>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: "var(--primary-light)", display: "grid", placeItems: "center", color: "var(--primary)" }}>
+          {icon}
+        </div>
+      </div>
+      <p style={{ margin: 0, fontSize: "1.75rem", fontWeight: "800", color: "var(--text-main)", letterSpacing: "-0.02em" }}>
+        {value}
+      </p>
+    </article>
+  );
 }
 
 function SectionTitle({ eyebrow, title, description }) {
@@ -999,17 +1034,43 @@ function WorkerCard({ worker, loadingId, onUpdate, compact = false }) {
     <article className={`worker-card ${compact ? "worker-card-wide" : ""}`}>
       <div className="worker-avatar">{worker.name?.charAt(0)?.toUpperCase() || "W"}</div>
       <div className="worker-content">
-        <div className="worker-title-row"><h3>{worker.name}</h3><span className={`status-badge status-${worker.verification_status.toLowerCase()}`}>{formatStatus(worker.verification_status)}</span></div>
-        <div className="worker-details">
-          <p>📧 {worker.email}</p><p>📱 {worker.phone || "No phone number"}</p>
-          <p>🛠️ {(worker.services || []).join(", ") || "No services selected"}</p>
-          <p>💼 {worker.experience_years || 0} year(s) experience</p>
-          {worker.description && <p>📝 {worker.description}</p>}
+        <div className="worker-title-row">
+          <h3 style={{ margin: 0 }}>{worker.name}</h3>
+          <span className={`status-badge status-${worker.verification_status.toLowerCase()}`}>
+            {formatStatus(worker.verification_status)}
+          </span>
         </div>
-        {!isRejected && <div className="admin-actions">
-          {isPending && <button className="btn btn-primary" type="button" disabled={isLoading} onClick={() => onUpdate(worker, "APPROVED")}>Approve</button>}
-          <button className="btn btn-danger" type="button" disabled={isLoading} onClick={() => onUpdate(worker, "REJECTED")}>{isLoading ? "Saving..." : "Reject & take offline"}</button>
-        </div>}
+        <div className="worker-details" style={{ display: "grid", gap: "5px", margin: "10px 0" }}>
+          <p style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0, fontSize: "0.88rem" }}>
+            <Mail size={13} style={{ color: "var(--text-muted)" }} /> {worker.email}
+          </p>
+          <p style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0, fontSize: "0.88rem" }}>
+            <Phone size={13} style={{ color: "var(--text-muted)" }} /> {worker.phone || "No phone number"}
+          </p>
+          <p style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0, fontSize: "0.88rem" }}>
+            <Wrench size={13} style={{ color: "var(--text-muted)" }} /> {(worker.services || []).join(", ") || "No services selected"}
+          </p>
+          <p style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0, fontSize: "0.88rem" }}>
+            <Briefcase size={13} style={{ color: "var(--text-muted)" }} /> {worker.experience_years || 0} year(s) experience
+          </p>
+          {worker.description && (
+            <p style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0, fontSize: "0.88rem" }}>
+              <FileText size={13} style={{ color: "var(--text-muted)" }} /> {worker.description}
+            </p>
+          )}
+        </div>
+        {!isRejected && (
+          <div className="admin-actions">
+            {isPending && (
+              <button className="btn btn-primary" type="button" disabled={isLoading} onClick={() => onUpdate(worker, "APPROVED")}>
+                Approve
+              </button>
+            )}
+            <button className="btn btn-danger" type="button" disabled={isLoading} onClick={() => onUpdate(worker, "REJECTED")}>
+              {isLoading ? "Saving..." : "Reject & take offline"}
+            </button>
+          </div>
+        )}
       </div>
     </article>
   );

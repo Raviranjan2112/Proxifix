@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { ThemeToggle } from "../context/ThemeContext.jsx";
+import { MessageSquare, CheckCircle2 } from "lucide-react";
 import WhatsAppOtpModal from "../components/WhatsAppOtpModal.jsx";
 
 export default function RegisterPage() {
@@ -130,6 +132,7 @@ export default function RegisterPage() {
         <nav className="nav-actions">
           <Link className="nav-link" to="/">Home</Link>
           <Link className="nav-link" to="/login">Login</Link>
+          <ThemeToggle />
         </nav>
       </header>
 
@@ -170,18 +173,29 @@ export default function RegisterPage() {
                 onClick={() => setShowOtpModal(true)}
                 className="btn"
                 style={{
-                  backgroundColor: isPhoneVerified ? "#E8F5E9" : "#F1F8F4",
-                  border: isPhoneVerified ? "1.5px solid #1B5E20" : "1.5px solid #075C31",
-                  color: isPhoneVerified ? "#1B5E20" : "#075C31",
+                  backgroundColor: isPhoneVerified ? "var(--primary-light)" : "var(--bg-subtle)",
+                  border: isPhoneVerified ? "1.5px solid var(--primary)" : "1.5px solid var(--border-color)",
+                  color: isPhoneVerified ? "var(--primary)" : "var(--text-main)",
                   fontSize: "0.85rem",
                   fontWeight: "700",
                   padding: "0 14px",
-                  borderRadius: 10,
+                  borderRadius: "var(--radius-md)",
                   whiteSpace: "nowrap",
                   cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
                 }}
               >
-                {isPhoneVerified ? "✅ Verified" : "💬 Verify via WhatsApp *"}
+                {isPhoneVerified ? (
+                  <>
+                    <CheckCircle2 size={16} /> Verified
+                  </>
+                ) : (
+                  <>
+                    <MessageSquare size={16} /> Verify via WhatsApp *
+                  </>
+                )}
               </button>
             </div>
             {isPhoneVerified ? (

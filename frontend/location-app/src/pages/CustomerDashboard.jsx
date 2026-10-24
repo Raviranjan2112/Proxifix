@@ -4,6 +4,8 @@ import api from "../services/api.js";
 import ServiceTrackingMap from "../components/ServiceTrackingMap.jsx";
 import { getCurrentLocation } from "../hooks/useCurrentLocation.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { ThemeToggle } from "../context/ThemeContext.jsx";
+import { LogOut, Search, MapPin, Star } from "lucide-react";
 
 export default function CustomerDashboard() {
   const { user, logout } = useAuth();
@@ -304,8 +306,9 @@ export default function CustomerDashboard() {
         <nav className="nav-actions">
           <Link className="nav-link" to="/">Home</Link>
           <span className="welcome-user">Hi, {user?.name}</span>
+          <ThemeToggle />
           <button className="btn btn-outline" type="button" onClick={handleLogout}>
-            Logout
+            <LogOut size={15} /> Logout
           </button>
         </nav>
       </header>

@@ -4,6 +4,8 @@ import api from "../services/api.js";
 import ServiceTrackingMap from "../components/ServiceTrackingMap.jsx";
 import { getCurrentLocation } from "../hooks/useCurrentLocation.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { ThemeToggle } from "../context/ThemeContext.jsx";
+import { ShieldCheck, Radio, Star, LogOut, Bell } from "lucide-react";
 
 const nextStatus = {
   PENDING: { label: "Accept booking", value: "ACCEPTED" },
@@ -269,8 +271,9 @@ export default function WorkerDashboard() {
 
         <nav className="nav-actions">
           <Link className="nav-link" to="/">Home</Link>
+          <ThemeToggle />
           <button className="btn btn-outline" type="button" onClick={handleLogout}>
-            Logout
+            <LogOut size={15} /> Logout
           </button>
         </nav>
       </header>
@@ -307,8 +310,12 @@ export default function WorkerDashboard() {
 
         <div className="dashboard-grid">
           <article className="card dashboard-hover-card">
-            <span className="service-icon">✅</span>
-            <h2>Verification Status</h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+              <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Verification Status</h2>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: "var(--primary-light)", display: "grid", placeItems: "center" }}>
+                <ShieldCheck size={18} style={{ color: "var(--primary)" }} />
+              </div>
+            </div>
             <p>
               Status:{" "}
               <strong>{worker?.verificationStatus || "PENDING"}</strong>
@@ -321,8 +328,12 @@ export default function WorkerDashboard() {
           </article>
 
           <article className="card dashboard-hover-card">
-            <span className="service-icon">🟢</span>
-            <h2>Availability</h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+              <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Availability</h2>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: online ? "var(--primary-light)" : "var(--bg-subtle)", display: "grid", placeItems: "center" }}>
+                <Radio size={18} style={{ color: online ? "var(--primary)" : "var(--text-muted)" }} />
+              </div>
+            </div>
             <p>
               {online
                 ? "You are online and visible to nearby customers."
@@ -346,8 +357,12 @@ export default function WorkerDashboard() {
           </article>
 
           <article className="card dashboard-hover-card">
-            <span className="service-icon">⭐</span>
-            <h2>My Rating</h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+              <h2 style={{ margin: 0, fontSize: "1.1rem" }}>My Rating</h2>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(245, 158, 11, 0.12)", display: "grid", placeItems: "center" }}>
+                <Star size={18} style={{ color: "#f59e0b" }} />
+              </div>
+            </div>
             <p>
               <strong>
                 {Number(worker?.rating || 0).toFixed(1)} / 5.0

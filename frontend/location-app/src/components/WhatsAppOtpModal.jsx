@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api.js";
+import { MessageSquare, RotateCw, X, Zap, ShieldCheck, ArrowRight } from "lucide-react";
 
 export default function WhatsAppOtpModal({
   isOpen,
@@ -152,7 +153,7 @@ export default function WhatsAppOtpModal({
       >
         <div style={styles.header}>
           <div style={styles.brandBadge}>
-            <span style={{ fontSize: 22 }}>💬</span>
+            <MessageSquare size={22} style={{ color: "var(--primary)" }} />
           </div>
           <div>
             <h2 style={styles.title}>
@@ -170,22 +171,22 @@ export default function WhatsAppOtpModal({
             style={styles.closeBtn}
             aria-label="Close"
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
 
         {error && <div style={styles.errorBox}>{error}</div>}
         {isNotRegistered && (
-          <div style={{ marginTop: 8, marginBottom: 12, textAlign: "center", padding: "10px", background: "#f8fafc", borderRadius: 8, border: "1px dashed #cbd5e1" }}>
-            <p style={{ margin: "0 0 8px", fontSize: "0.85rem", color: "#475569" }}>
+          <div style={{ marginTop: 8, marginBottom: 12, textAlign: "center", padding: "12px", background: "var(--bg-subtle)", borderRadius: 10, border: "1px dashed var(--border-color)" }}>
+            <p style={{ margin: "0 0 8px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
               Direct OTP login is reserved for registered users.
             </p>
             <a
               href="/register"
               className="btn btn-outline"
-              style={{ display: "inline-block", fontSize: "0.84rem", padding: "6px 14px", textDecoration: "none", color: "#075c31", borderColor: "#25d366" }}
+              style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.84rem", padding: "6px 14px", textDecoration: "none", color: "var(--primary)", borderColor: "var(--primary)" }}
             >
-              📝 Create a ProxiFix Account
+              <ShieldCheck size={14} /> Create a ProxiFix Account
             </a>
           </div>
         )}
@@ -194,8 +195,10 @@ export default function WhatsAppOtpModal({
         {/* Development Mode Hint */}
         {simulatedCode && (
           <div style={styles.simBox}>
-            <span style={{ fontWeight: "bold" }}>⚡ Dev Mode Simulation:</span> Your verification code is{" "}
-            <code style={styles.simCode}>{simulatedCode}</code>
+            <span style={{ fontWeight: "bold", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <Zap size={14} style={{ color: "#d97706" }} /> Dev Mode Simulation:
+            </span>{" "}
+            Your verification code is <code style={styles.simCode}>{simulatedCode}</code>
           </div>
         )}
 
@@ -225,7 +228,7 @@ export default function WhatsAppOtpModal({
                   style={styles.refreshBtn}
                   title="Refresh CAPTCHA"
                 >
-                  🔄 Refresh
+                  <RotateCw size={13} /> Refresh
                 </button>
               </div>
 
