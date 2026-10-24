@@ -146,10 +146,8 @@ export default function ServiceTrackingMap({ customerLocation, workerLocation, c
     return <p className="map-unavailable">The customer location is unavailable for this booking.</p>;
   }
 
-  // Polished map tiles adapting to Light/Dark mode seamlessly
-  const tileUrl = theme === "dark"
-    ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-    : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+  // 100% Free OpenStreetMap tiles - zero watermark, zero API key required
+  const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
   return (
     <div className={`tracking-map ${className}`.trim()}>
@@ -181,7 +179,7 @@ export default function ServiceTrackingMap({ customerLocation, workerLocation, c
 
       <MapContainer center={workerPoint || customerPoint} zoom={15} scrollWheelZoom={false}>
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url={tileUrl}
         />
         <FitTrackingBounds points={points} />
