@@ -398,24 +398,21 @@ select:focus {
   min-height: 0;
   margin-top: 0;
   padding: 28px;
-  background:
-    radial-gradient(circle at 100% 0, rgba(255, 230, 135, 0.34) 0 14%, transparent 15%),
-    radial-gradient(circle at 0 100%, rgba(164, 225, 181, 0.32) 0 17%, transparent 18%),
-    linear-gradient(135deg, rgba(247, 253, 248, 0.97), rgba(255, 251, 231, 0.94));
-  border: 1px solid rgba(151, 190, 160, 0.48);
-  border-radius: 20px;
-  box-shadow: 0 16px 38px rgba(17, 66, 38, 0.1);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-main);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.worker-job-panel:hover {
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-md);
 }
 
 .worker-job-panel::before {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  content: "";
-  pointer-events: none;
-  opacity: 0.45;
-  background-image: radial-gradient(rgba(7, 92, 49, 0.17) 1px, transparent 1px);
-  background-size: 22px 22px;
+  display: none !important;
 }
 
 .worker-job-panel > * {
@@ -424,15 +421,13 @@ select:focus {
 }
 
 .worker-job-panel.job-history-section {
-  background:
-    radial-gradient(circle at 100% 100%, rgba(176, 224, 187, 0.38) 0 18%, transparent 19%),
-    radial-gradient(circle at 0 0, rgba(255, 231, 150, 0.28) 0 13%, transparent 14%),
-    linear-gradient(135deg, rgba(250, 253, 244, 0.97), rgba(239, 250, 246, 0.96));
+  background: var(--bg-surface);
 }
 
 .worker-results > h2 {
   margin-bottom: 8px;
   font-size: 1.8rem;
+  color: var(--text-main);
 }
 
 .worker-job-scroll {
@@ -441,22 +436,35 @@ select:focus {
   margin-top: 24px;
   padding: 4px 12px 8px 0;
   overflow-y: auto;
-  scrollbar-color: #91b79b #edf5ef;
+  scrollbar-color: var(--border-subtle) transparent;
   scrollbar-width: thin;
 }
 
 .worker-job-scroll::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .worker-job-scroll::-webkit-scrollbar-track {
-  background: #edf5ef;
-  border-radius: 999px;
+  background: transparent;
 }
 
 .worker-job-scroll::-webkit-scrollbar-thumb {
-  background: #91b79b;
+  background: var(--border-subtle);
   border-radius: 999px;
+}
+
+.worker-job-panel .worker-card {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.worker-job-panel .worker-card p {
+  color: var(--text-muted);
+}
+
+.worker-job-panel .worker-card strong {
+  color: var(--text-main);
 }
 
 .worker-job-scroll .worker-grid {
@@ -1592,6 +1600,7 @@ textarea:focus {
 .worker-dashboard-shell .dashboard-hover-card,
 .worker-dashboard-shell .notification-panel,
 .worker-dashboard-shell .worker-card,
+.worker-dashboard-shell .worker-job-panel,
 .worker-dashboard-shell .tracking-panel,
 .worker-dashboard-shell .payment-card,
 .worker-dashboard-shell .notification-item,
