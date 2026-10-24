@@ -247,9 +247,9 @@ export default function WhatsAppAdminHub() {
         </article>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "1.5rem", marginTop: "2rem" }}>
+      <div className="whatsapp-hub-grid">
         {/* Device Pairing Card */}
-        <article className="card" style={{ padding: "26px" }}>
+        <article className="card whatsapp-hub-card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
             <div>
               <h2 style={{ margin: 0, fontSize: "1.25rem" }}>WhatsApp Device Pairing</h2>
@@ -355,7 +355,7 @@ export default function WhatsAppAdminHub() {
         </article>
 
         {/* Live Message Template & Defenses Card */}
-        <article className="card" style={{ padding: "26px" }}>
+        <article className="card whatsapp-hub-card">
           <h2 style={{ margin: "0 0 4px", fontSize: "1.25rem" }}>WhatsApp Message Template</h2>
           <p style={{ margin: "0 0 16px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
             Message format delivered to customer and worker WhatsApp devices:

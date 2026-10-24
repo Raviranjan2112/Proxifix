@@ -52,6 +52,12 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   min-width: 320px;
   min-height: 100vh;
@@ -81,6 +87,9 @@ a:hover {
   position: relative;
   min-height: 100vh;
   background: var(--bg-page);
+  max-width: 100%;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .customer-dashboard-shell,
@@ -2069,5 +2078,73 @@ textarea:focus {
     font-size: 1.45rem !important;
   }
 }
+
+/* ============================================================
+   RESPONSIVE VIEWPORT CENTERING & WHATSAPP HUB GRID
+   ============================================================ */
+
+.whatsapp-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.whatsapp-hub-card {
+  padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .dashboard-section {
+    width: calc(100% - 24px) !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 24px 0 !important;
+    box-sizing: border-box;
+  }
+
+  .whatsapp-hub-grid {
+    grid-template-columns: 100% !important;
+    gap: 1rem;
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .whatsapp-hub-card {
+    padding: 18px 14px !important;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .admin-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-bottom: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .admin-summary-card {
+    padding: 12px 10px !important;
+    min-height: auto !important;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .admin-summary-card .summary-title {
+    font-size: 0.72rem !important;
+  }
+
+  .admin-summary-card .summary-value {
+    font-size: 1.05rem !important;
+    word-break: break-word;
+    line-height: 1.25;
+  }
+}
+
 
 
