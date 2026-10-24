@@ -90,6 +90,42 @@ function validPoint(location) {
     : null;
 }
 
+// Decodes Google / Ola Maps encoded polyline strings into array of [lat, lng]
+function decodePolyline(encoded) {
+  if (!encoded) return [];
+  const points = [];
+  let index = 0;
+  const len = encoded.length;
+  let lat = 0;
+  let lng = 0;
+
+  while (index < len) {
+    let b;
+    let shift = 0;
+    let result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lat += dlat;
+
+    shift = 0;
+    result = 0;
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
+    const dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lng += dlng;
+
+    points.push([lat / 1e5, lng / 1e5]);
+  }
+  return points;
+}
+
 export default function ServiceTrackingMap({ customerLocation, workerLocation, className = "" }) {
   const { theme } = useTheme();
   const customerPoint = validPoint(customerLocation);
@@ -100,7 +136,7 @@ export default function ServiceTrackingMap({ customerLocation, workerLocation, c
   const [etaInfo, setEtaInfo] = useState(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
 
-  // Fetch real road routing (turn-by-turn road curves like Swiggy/Zomato)
+  // Fetch real road routing (Powered by Ola Maps with OSRM fallback)
   useEffect(() => {
     if (!customerPoint || !workerPoint) {
       setRoadPath(null);
@@ -112,21 +148,52 @@ export default function ServiceTrackingMap({ customerLocation, workerLocation, c
     setLoadingRoute(true);
 
     const fetchRoute = async () => {
+      const olaKey = import.meta.env.VITE_OLA_MAPS_API_KEY || "ZxqswHOxvV2XMQGbGgxfUCZuOLCzbvBm0bL2uYv6";
+
+      // 1. Primary: Try Ola Maps Indian Logistics Routing API
       try {
-        // High-precision road driving navigation engine
+        const olaUrl = `https://api.olamaps.io/routing/v1/directions?origin=${workerPoint[0]},${workerPoint[1]}&destination=${customerPoint[0]},${customerPoint[1]}&api_key=${olaKey}`;
+        const olaRes = await fetch(olaUrl, { method: "POST" });
+        const olaData = await olaRes.json();
+
+        if (isMounted && olaData.status === "SUCCESS" && olaData.routes?.[0]) {
+          const route = olaData.routes[0];
+          const leg = route.legs?.[0];
+          const polylineStr = route.overview_polyline;
+          const decoded = decodePolyline(polylineStr);
+
+          if (decoded.length > 0) {
+            const distanceKm = leg?.readable_distance
+              ? Number(leg.readable_distance).toFixed(1)
+              : ((leg?.distance || 0) / 1000).toFixed(1);
+            const durationMins = leg?.readable_duration
+              ? Math.max(1, Math.ceil(parseInt(leg.readable_duration, 10) || (leg.duration / 60)))
+              : Math.max(1, Math.ceil((leg?.duration || 0) / 60));
+
+            setRoadPath(decoded);
+            setEtaInfo({ distanceKm, durationMins, source: "Ola Maps" });
+            setLoadingRoute(false);
+            return;
+          }
+        }
+      } catch (olaErr) {
+        console.warn("Ola Maps routing fallback:", olaErr);
+      }
+
+      // 2. Fallback: High-speed OSRM engine
+      try {
         const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${workerPoint[1]},${workerPoint[0]};${customerPoint[1]},${customerPoint[0]}?overview=full&geometries=geojson`;
         const res = await fetch(osrmUrl);
         const data = await res.json();
 
         if (isMounted && data.code === "Ok" && data.routes?.[0]) {
           const route = data.routes[0];
-          // GeoJSON returns [lng, lat]; Leaflet expects [lat, lng]
           const coords = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
           const distanceKm = (route.distance / 1000).toFixed(1);
           const durationMins = Math.max(1, Math.ceil(route.duration / 60));
 
           setRoadPath(coords);
-          setEtaInfo({ distanceKm, durationMins });
+          setEtaInfo({ distanceKm, durationMins, source: "Live Route" });
         }
       } catch (err) {
         console.warn("Falling back to direct line:", err);
