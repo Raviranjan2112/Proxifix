@@ -64,8 +64,9 @@ export default function LoginPage() {
             <span>Home</span>
           </Link>
           <Link className="btn btn-primary auth-nav-cta" to="/register">
-            <UserPlus size={15} />
-            <span>Create Account</span>
+            <UserPlus size={14} />
+            <span className="auth-cta-text-full">Create Account</span>
+            <span className="auth-cta-text-short">Register</span>
           </Link>
           <ThemeToggle />
         </nav>

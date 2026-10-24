@@ -164,6 +164,8 @@ a:hover {
   cursor: pointer;
   transition: all 0.15s ease;
   padding: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 .theme-toggle-btn:hover {
   background: var(--bg-muted);
@@ -2186,14 +2188,48 @@ textarea:focus {
   white-space: nowrap;
 }
 
+.auth-cta-text-short {
+  display: none;
+}
+
 @media (max-width: 600px) {
+  .topbar,
   .auth-topbar,
-  .topbar {
-    padding: 0 4% !important;
+  .admin-topbar {
+    min-height: 62px !important;
+    padding: 8px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
   }
 
-  .auth-nav-actions {
+  .auth-nav-actions,
+  .admin-topbar-actions {
+    display: flex !important;
+    align-items: center !important;
     gap: 6px !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .theme-toggle-btn {
+    width: 34px !important;
+    height: 34px !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .auth-cta-text-full {
+    display: none;
+  }
+
+  .auth-cta-text-short {
+    display: inline;
   }
 
   .auth-nav-link {
