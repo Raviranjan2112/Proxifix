@@ -283,36 +283,47 @@ export default function AdminDashboard() {
 
   return (
     <main className="app-shell admin-dashboard-shell">
-      <header className="topbar">
-        <Link className="brand" to="/admin" onClick={() => setActiveTab('workers')}><span className="brand-icon">P</span>ProxiFix Admin</Link>
-        <nav className="nav-actions">
+      <header className="topbar admin-topbar">
+        <Link className="brand" to="/admin" onClick={() => setActiveTab('workers')}>
+          <span className="brand-icon">P</span>
+          <span className="brand-title">ProxiFix <span className="admin-badge-pill">Admin</span></span>
+        </Link>
+        <div className="admin-topbar-actions">
+          <ThemeToggle />
+          <button className="btn btn-outline admin-logout-btn" type="button" onClick={handleLogout} title="Logout">
+            <LogOut size={15} /> <span>Logout</span>
+          </button>
+        </div>
+      </header>
+
+      <nav className="admin-subnav" aria-label="Admin Navigation Tabs">
+        <div className="admin-subnav-scroll">
           <button 
-            className={`btn ${activeTab === 'workers' ? 'btn-primary' : 'btn-outline'}`} 
+            className={`admin-subnav-btn ${activeTab === 'workers' ? 'active' : ''}`} 
             type="button" 
             onClick={() => setActiveTab('workers')}
           >
-            <Users size={16} /> Workers
+            <Users size={16} />
+            <span>Workers</span>
           </button>
           <button 
-            className={`btn ${activeTab === 'security' ? 'btn-primary' : 'btn-outline'}`} 
+            className={`admin-subnav-btn ${activeTab === 'security' ? 'active' : ''}`} 
             type="button" 
             onClick={() => setActiveTab('security')}
           >
-            <ShieldAlert size={16} /> Security Center
+            <ShieldAlert size={16} />
+            <span>Security Center</span>
           </button>
           <button 
-            className={`btn ${activeTab === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`} 
+            className={`admin-subnav-btn ${activeTab === 'whatsapp' ? 'active' : ''}`} 
             type="button" 
             onClick={() => setActiveTab('whatsapp')}
           >
-            <MessageSquare size={16} /> WhatsApp OTP Hub
+            <MessageSquare size={16} />
+            <span>WhatsApp OTP Hub</span>
           </button>
-          <ThemeToggle />
-          <button className="btn btn-outline" type="button" onClick={handleLogout}>
-            <LogOut size={15} /> Logout
-          </button>
-        </nav>
-      </header>
+        </div>
+      </nav>
 
       {activeTab === "whatsapp" ? (
         <WhatsAppAdminHub />
