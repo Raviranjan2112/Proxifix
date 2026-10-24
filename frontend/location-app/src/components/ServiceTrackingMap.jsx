@@ -153,7 +153,7 @@ export default function ServiceTrackingMap({ customerLocation, workerLocation, c
 
   return (
     <div className={`tracking-map ${className}`.trim()}>
-      {/* Swiggy/Zomato Live ETA Banner */}
+      {/* Swiggy/Zomato Live ETA Banner with Google Maps Navigation Option */}
       {workerPoint && (
         <div className="live-eta-banner">
           <div className="live-eta-badge">
@@ -164,9 +164,18 @@ export default function ServiceTrackingMap({ customerLocation, workerLocation, c
             {etaInfo ? (
               <span>Distance: <strong>{etaInfo.distanceKm} km</strong></span>
             ) : (
-              <span>Calculating road path...</span>
+              <span>Calculating live road route...</span>
             )}
           </div>
+          <a
+            className="live-gmaps-link"
+            href={`https://www.google.com/maps/dir/?api=1&origin=${workerPoint[0]},${workerPoint[1]}&destination=${customerPoint[0]},${customerPoint[1]}&travelmode=driving`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open turn-by-turn navigation in Google Maps app"
+          >
+            Google Maps GPS ↗
+          </a>
         </div>
       )}
 
@@ -206,13 +215,23 @@ export default function ServiceTrackingMap({ customerLocation, workerLocation, c
               </Tooltip>
             </Marker>
 
-            {/* Road-snapped Polyline Curve */}
+            {/* Road-snapped Polyline Curve with Outer Border (Google Maps / Swiggy style) */}
+            <Polyline
+              positions={roadPath || [workerPoint, customerPoint]}
+              pathOptions={{
+                color: theme === "dark" ? "#064e3b" : "#bbf7d0",
+                weight: 9,
+                opacity: 0.85,
+                lineCap: "round",
+                lineJoin: "round",
+              }}
+            />
             <Polyline
               positions={roadPath || [workerPoint, customerPoint]}
               pathOptions={{
                 color: theme === "dark" ? "#10b981" : "#059669",
                 weight: 5,
-                opacity: 0.9,
+                opacity: 1,
                 lineCap: "round",
                 lineJoin: "round",
               }}
