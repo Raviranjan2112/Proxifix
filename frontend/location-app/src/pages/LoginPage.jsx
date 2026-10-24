@@ -94,7 +94,7 @@ export default function LoginPage() {
             }}
           >
             <MessageSquare size={18} />
-            Login with WhatsApp OTP (Passwordless)
+            Login with WhatsApp OTP
           </button>
           <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", textAlign: "center", margin: "6px 0 0" }}>
             * Direct login is available for registered phone numbers only
@@ -105,16 +105,16 @@ export default function LoginPage() {
               display: "flex",
               alignItems: "center",
               textAlign: "center",
-              color: "#94A3B8",
+              color: "var(--text-muted)",
               fontSize: "0.82rem",
               margin: "18px 0 14px",
             }}
           >
-            <div style={{ flex: 1, height: 1, backgroundColor: "#E2E8F0" }} />
+            <div style={{ flex: 1, height: 1, backgroundColor: "var(--border-color)" }} />
             <span style={{ padding: "0 10px", fontWeight: "600", textTransform: "uppercase" }}>
               or with password
             </span>
-            <div style={{ flex: 1, height: 1, backgroundColor: "#E2E8F0" }} />
+            <div style={{ flex: 1, height: 1, backgroundColor: "var(--border-color)" }} />
           </div>
         </div>
 

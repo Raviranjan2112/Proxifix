@@ -161,7 +161,7 @@ export default function WhatsAppOtpModal({
             </h2>
             <p style={styles.subtitle}>
               {purpose === "LOGIN"
-                ? "Fast & passwordless login via your WhatsApp account."
+                ? "Fast & secure direct login via your WhatsApp account."
                 : "Verify your phone number with a 6-digit code."}
             </p>
           </div>
