@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 import { ThemeToggle } from "../context/ThemeContext.jsx";
 import { Wrench, Zap, Sparkles, Hammer, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 
@@ -10,10 +11,28 @@ const services = [
 ];
 
 export default function HomePage() {
+  const { user } = useAuth();
+
+  const dashboardPath = user
+    ? user.role === "ADMIN"
+      ? "/admin"
+      : user.role === "WORKER"
+        ? "/worker"
+        : "/customer"
+    : "/customer";
+
+  const dashboardLabel = user
+    ? user.role === "ADMIN"
+      ? "Admin Dashboard"
+      : user.role === "WORKER"
+        ? "Worker Dashboard"
+        : "Find Workers"
+    : "Find Workers";
+
   return (
     <main className="app-shell home-page">
       <header className="topbar home-topbar">
-        <Link className="brand" to="/">
+        <Link className="brand" to={user ? dashboardPath : "/"}>
           <span className="brand-icon">P</span>
           ProxiFix
         </Link>
@@ -21,10 +40,21 @@ export default function HomePage() {
         <nav className="nav-actions home-nav" aria-label="Main navigation">
           <a className="nav-link" href="#services">Services</a>
           <a className="nav-link" href="#how-it-works">How it works</a>
-          <Link className="nav-link" to="/customer">Find Workers</Link>
-          <Link className="nav-link" to="/login">Login</Link>
-          <ThemeToggle />
-          <Link className="btn btn-primary" to="/register">Get Started</Link>
+          <Link className="nav-link" to={dashboardPath}>{dashboardLabel}</Link>
+          {!user ? (
+            <>
+              <Link className="nav-link" to="/login">Login</Link>
+              <ThemeToggle />
+              <Link className="btn btn-primary" to="/register">Get Started</Link>
+            </>
+          ) : (
+            <>
+              <ThemeToggle />
+              <Link className="btn btn-primary" to={dashboardPath}>
+                {user.role === "ADMIN" ? "Admin Panel" : user.role === "WORKER" ? "Worker Portal" : "My Dashboard"}
+              </Link>
+            </>
+          )}
         </nav>
       </header>
 
@@ -39,12 +69,26 @@ export default function HomePage() {
             </p>
 
             <div className="hero-actions">
-              <Link className="btn btn-primary" to="/customer">
-                Find a Worker <ArrowRight size={16} />
-              </Link>
-              <Link className="btn btn-outline" to="/register?role=WORKER">
-                Join as a Worker
-              </Link>
+              {user?.role === "ADMIN" ? (
+                <Link className="btn btn-primary" to="/admin">
+                  Go to Admin Dashboard <ArrowRight size={16} />
+                </Link>
+              ) : user?.role === "WORKER" ? (
+                <Link className="btn btn-primary" to="/worker">
+                  Go to Worker Dashboard <ArrowRight size={16} />
+                </Link>
+              ) : (
+                <>
+                  <Link className="btn btn-primary" to="/customer">
+                    Find a Worker <ArrowRight size={16} />
+                  </Link>
+                  {!user && (
+                    <Link className="btn btn-outline" to="/register?role=WORKER">
+                      Join as a Worker
+                    </Link>
+                  )}
+                </>
+              )}
             </div>
           </div>
 
@@ -80,8 +124,8 @@ export default function HomePage() {
                 </div>
                 <h3>{service.title}</h3>
                 <p>{service.text}</p>
-                <Link className="text-link" to="/customer" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                  Find workers <ArrowRight size={14} />
+                <Link className="text-link" to={dashboardPath} style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                  {user?.role === "ADMIN" ? "Admin Directory" : user?.role === "WORKER" ? "Worker Portal" : "Find workers"} <ArrowRight size={14} />
                 </Link>
               </article>
             ))}

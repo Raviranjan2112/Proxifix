@@ -284,7 +284,7 @@ export default function AdminDashboard() {
   return (
     <main className="app-shell admin-dashboard-shell">
       <header className="topbar">
-        <Link className="brand" to="/"><span className="brand-icon">P</span>ProxiFix Admin</Link>
+        <Link className="brand" to="/admin" onClick={() => setActiveTab('workers')}><span className="brand-icon">P</span>ProxiFix Admin</Link>
         <nav className="nav-actions">
           <button 
             className={`btn ${activeTab === 'workers' ? 'btn-primary' : 'btn-outline'}`} 
