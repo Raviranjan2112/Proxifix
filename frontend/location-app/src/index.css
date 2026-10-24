@@ -2146,5 +2146,85 @@ textarea:focus {
   }
 }
 
+/* ============================================================
+   PERSISTENT MOBILE & DESKTOP AUTH/TOPBAR NAVIGATION
+   ============================================================ */
+
+.auth-nav-actions {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-nav-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.auth-nav-link:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+  text-decoration: none;
+}
+
+.auth-nav-cta {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-md) !important;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .auth-topbar,
+  .topbar {
+    padding: 0 4% !important;
+  }
+
+  .auth-nav-actions {
+    gap: 6px !important;
+  }
+
+  .auth-nav-link {
+    padding: 6px 8px !important;
+    font-size: 0.84rem !important;
+  }
+
+  .auth-nav-cta {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .logout-text {
+    display: none;
+  }
+
+  .welcome-user {
+    font-size: 0.84rem;
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 380px) {
+  .auth-nav-link span {
+    display: none;
+  }
+}
+
+
 
 

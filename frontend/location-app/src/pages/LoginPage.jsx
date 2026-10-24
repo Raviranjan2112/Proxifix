@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ThemeToggle } from "../context/ThemeContext.jsx";
-import { MessageSquare, Lock, Mail, LogIn } from "lucide-react";
+import { MessageSquare, Lock, Mail, LogIn, Home, UserPlus } from "lucide-react";
 import WhatsAppOtpModal from "../components/WhatsAppOtpModal.jsx";
 
 export default function LoginPage() {
@@ -58,9 +58,15 @@ export default function LoginPage() {
           <span className="brand-icon">P</span>
           ProxiFix
         </Link>
-        <nav className="nav-actions">
-          <Link className="nav-link" to="/">Home</Link>
-          <Link className="nav-link" to="/register">Create Account</Link>
+        <nav className="nav-actions auth-nav-actions">
+          <Link className="auth-nav-link" to="/" title="Home">
+            <Home size={16} />
+            <span>Home</span>
+          </Link>
+          <Link className="btn btn-primary auth-nav-cta" to="/register">
+            <UserPlus size={15} />
+            <span>Create Account</span>
+          </Link>
           <ThemeToggle />
         </nav>
       </header>

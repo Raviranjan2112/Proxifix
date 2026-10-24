@@ -5,7 +5,7 @@ import ServiceTrackingMap from "../components/ServiceTrackingMap.jsx";
 import { getCurrentLocation } from "../hooks/useCurrentLocation.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ThemeToggle } from "../context/ThemeContext.jsx";
-import { ShieldCheck, Radio, Star, LogOut, Bell, CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+import { ShieldCheck, Radio, Star, LogOut, Bell, CheckCircle2, AlertCircle, Info, X, Home } from "lucide-react";
 
 const nextStatus = {
   PENDING: { label: "Accept booking", value: "ACCEPTED" },
@@ -269,11 +269,14 @@ export default function WorkerDashboard() {
           ProxiFix
         </Link>
 
-        <nav className="nav-actions">
-          <Link className="nav-link" to="/">Home</Link>
+        <nav className="nav-actions auth-nav-actions">
+          <Link className="auth-nav-link" to="/" title="Home">
+            <Home size={16} />
+            <span>Home</span>
+          </Link>
           <ThemeToggle />
-          <button className="btn btn-outline" type="button" onClick={handleLogout}>
-            <LogOut size={15} /> Logout
+          <button className="btn btn-outline" type="button" onClick={handleLogout} title="Logout">
+            <LogOut size={15} /> <span className="logout-text">Logout</span>
           </button>
         </nav>
       </header>

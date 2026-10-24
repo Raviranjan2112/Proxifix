@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ThemeToggle } from "../context/ThemeContext.jsx";
-import { MessageSquare, CheckCircle2 } from "lucide-react";
+import { MessageSquare, CheckCircle2, Home, LogIn } from "lucide-react";
 import WhatsAppOtpModal from "../components/WhatsAppOtpModal.jsx";
 
 export default function RegisterPage() {
@@ -129,9 +129,15 @@ export default function RegisterPage() {
           <span className="brand-icon">P</span>
           ProxiFix
         </Link>
-        <nav className="nav-actions">
-          <Link className="nav-link" to="/">Home</Link>
-          <Link className="nav-link" to="/login">Login</Link>
+        <nav className="nav-actions auth-nav-actions">
+          <Link className="auth-nav-link" to="/" title="Home">
+            <Home size={16} />
+            <span>Home</span>
+          </Link>
+          <Link className="btn btn-primary auth-nav-cta" to="/login">
+            <LogIn size={15} />
+            <span>Login</span>
+          </Link>
           <ThemeToggle />
         </nav>
       </header>

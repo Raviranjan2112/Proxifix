@@ -5,7 +5,7 @@ import ServiceTrackingMap from "../components/ServiceTrackingMap.jsx";
 import { getCurrentLocation } from "../hooks/useCurrentLocation.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ThemeToggle } from "../context/ThemeContext.jsx";
-import { LogOut, Search, MapPin, Star, CheckCircle2, AlertCircle, Info, X, ShieldCheck, ArrowRight } from "lucide-react";
+import { LogOut, Search, MapPin, Star, CheckCircle2, AlertCircle, Info, X, ShieldCheck, ArrowRight, Home } from "lucide-react";
 
 export default function CustomerDashboard() {
   const { user, logout } = useAuth();
@@ -307,12 +307,15 @@ export default function CustomerDashboard() {
           ProxiFix
         </Link>
 
-        <nav className="nav-actions">
-          <Link className="nav-link" to="/">Home</Link>
-          <span className="welcome-user">Hi, {user?.name}</span>
+        <nav className="nav-actions auth-nav-actions">
+          <Link className="auth-nav-link" to="/" title="Home">
+            <Home size={16} />
+            <span>Home</span>
+          </Link>
+          <span className="welcome-user">Hi, {user?.name?.split(" ")[0] || "User"}</span>
           <ThemeToggle />
-          <button className="btn btn-outline" type="button" onClick={handleLogout}>
-            <LogOut size={15} /> Logout
+          <button className="btn btn-outline" type="button" onClick={handleLogout} title="Logout">
+            <LogOut size={15} /> <span className="logout-text">Logout</span>
           </button>
         </nav>
       </header>
