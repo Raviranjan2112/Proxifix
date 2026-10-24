@@ -394,48 +394,48 @@ export default function AdminDashboard() {
           />
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", margin: "1.2rem 0" }}>
-            <div style={{ background: "#ffffff", padding: "14px 18px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-              <div style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600" }}>PLATFORM SECURITY</div>
-              <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#16a34a", marginTop: "4px" }}>Protected 🛡️</div>
-              <div style={{ fontSize: "0.75rem", color: "#64748b" }}>All 9 STRIDE threat vectors covered</div>
+            <div style={{ background: "var(--bg-surface)", padding: "16px 20px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
+              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.04em" }}>PLATFORM SECURITY</div>
+              <div style={{ fontSize: "1.35rem", fontWeight: "bold", color: "var(--primary)", marginTop: "6px" }}>Protected 🛡️</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px" }}>All 9 STRIDE threat vectors covered</div>
             </div>
-            <div style={{ background: "#ffffff", padding: "14px 18px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-              <div style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600" }}>DEFENSE CONTROLS</div>
-              <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#2563eb", marginTop: "4px" }}>100% Active</div>
-              <div style={{ fontSize: "0.75rem", color: "#64748b" }}>9 of 9 mitigations enforced</div>
+            <div style={{ background: "var(--bg-surface)", padding: "16px 20px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
+              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.04em" }}>DEFENSE CONTROLS</div>
+              <div style={{ fontSize: "1.35rem", fontWeight: "bold", color: "#3b82f6", marginTop: "6px" }}>100% Active</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px" }}>9 of 9 mitigations enforced</div>
             </div>
-            <div style={{ background: "#f0fdf4", padding: "14px 18px", borderRadius: "8px", border: "1px solid #bbf7d0" }}>
-              <div style={{ fontSize: "0.8rem", color: "#166534", fontWeight: "600" }}>CURRENT RISK LEVEL</div>
-              <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#15803d", marginTop: "4px" }}>Low / Secure ✅</div>
-              <div style={{ fontSize: "0.75rem", color: "#166534" }}>0 active high vulnerabilities</div>
+            <div style={{ background: "var(--bg-surface)", padding: "16px 20px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
+              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.04em" }}>CURRENT RISK LEVEL</div>
+              <div style={{ fontSize: "1.35rem", fontWeight: "bold", color: "var(--primary)", marginTop: "6px" }}>Low / Secure ✅</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px" }}>0 active high vulnerabilities</div>
             </div>
-            <div style={{ background: "#ffffff", padding: "14px 18px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-              <div style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "600" }}>AUDIT INTEGRITY</div>
-              <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#0891b2", marginTop: "4px" }}>Active 🔒</div>
-              <div style={{ fontSize: "0.75rem", color: "#64748b" }}>Immutable non-repudiation logging</div>
+            <div style={{ background: "var(--bg-surface)", padding: "16px 20px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
+              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.04em" }}>AUDIT INTEGRITY</div>
+              <div style={{ fontSize: "1.35rem", fontWeight: "bold", color: "#06b6d4", marginTop: "6px" }}>Active 🔒</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "2px" }}>Immutable non-repudiation logging</div>
             </div>
           </div>
 
-          <div style={{ overflowX: "auto", margin: "1.5rem 0", background: "white", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+          <div style={{ overflowX: "auto", margin: "1.5rem 0", background: "var(--bg-surface)", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
               <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "2px solid #cbd5e1", textAlign: "left" }}>
-                  <th style={{ padding: "12px 16px" }}>STRIDE Vector</th>
-                  <th style={{ padding: "12px 16px" }}>Threat Scenario</th>
-                  <th style={{ padding: "12px 16px" }}>Active Security Control / Mitigation</th>
-                  <th style={{ padding: "12px 16px", textAlign: "center" }}>Current Status / Risk</th>
+                <tr style={{ background: "var(--bg-subtle)", borderBottom: "1px solid var(--border-color)", textAlign: "left" }}>
+                  <th style={{ padding: "12px 16px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>STRIDE Vector</th>
+                  <th style={{ padding: "12px 16px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Threat Scenario</th>
+                  <th style={{ padding: "12px 16px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Active Security Control / Mitigation</th>
+                  <th style={{ padding: "12px 16px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.04em", textAlign: "center" }}>Current Status / Risk</th>
                 </tr>
               </thead>
               <tbody>
                 {dreadMatrix.map((item, index) => (
-                  <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                    <td style={{ padding: "12px 16px", fontWeight: "bold", color: "#1e293b", whiteSpace: "nowrap" }}>
+                  <tr key={index} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                    <td style={{ padding: "12px 16px", fontWeight: "bold", color: "var(--text-main)", whiteSpace: "nowrap" }}>
                       {item.category}
                     </td>
-                    <td style={{ padding: "12px 16px", fontWeight: "500", color: "#1e293b" }}>
+                    <td style={{ padding: "12px 16px", fontWeight: "500", color: "var(--text-main)" }}>
                       {item.threat}
                     </td>
-                    <td style={{ padding: "12px 16px", fontSize: "0.85rem", color: "#334155" }}>
+                    <td style={{ padding: "12px 16px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
                       {item.mitigation}
                     </td>
                     <td style={{ padding: "12px 16px", textAlign: "center" }}>
@@ -444,9 +444,9 @@ export default function AdminDashboard() {
                         borderRadius: "20px", 
                         fontWeight: "600",
                         fontSize: "0.82rem",
-                        background: "#dcfce7",
-                        color: "#15803d",
-                        border: "1px solid #86efac",
+                        background: "var(--primary-light)",
+                        color: "var(--primary)",
+                        border: "1px solid var(--primary-border)",
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "6px",
@@ -468,7 +468,7 @@ export default function AdminDashboard() {
                 <span style={{ fontSize: "0.78rem", fontWeight: "bold", textTransform: "uppercase", color: "#dc2626", letterSpacing: "0.5px" }}>
                   Active Threat Monitor (STRIDE: 'T' & 'D')
                 </span>
-                <h3 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "#0f172a", margin: "4px 0 0" }}>
+                <h3 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "var(--text-main)", margin: "4px 0 0" }}>
                   🚨 Unusual Activity & Security Threat Notifications
                 </h3>
               </div>
@@ -477,11 +477,11 @@ export default function AdminDashboard() {
                 onClick={loadSecurityData}
                 disabled={loadingSecurity}
                 style={{
-                  padding: "6px 12px",
-                  borderRadius: "6px",
-                  background: "#f1f5f9",
-                  border: "1px solid #cbd5e1",
-                  color: "#334155",
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  background: "var(--bg-subtle)",
+                  border: "1px solid var(--border-color)",
+                  color: "var(--text-main)",
                   fontSize: "0.8rem",
                   fontWeight: "600",
                   cursor: "pointer",
@@ -494,10 +494,10 @@ export default function AdminDashboard() {
             {securityAlerts.length === 0 ? (
               <div style={{ 
                 padding: "16px 20px", 
-                background: "#f0fdf4", 
-                border: "1px solid #86efac", 
-                borderRadius: "8px", 
-                color: "#166534", 
+                background: "var(--primary-light)", 
+                border: "1px solid var(--primary-border)", 
+                borderRadius: "var(--radius-md)", 
+                color: "var(--primary)", 
                 fontSize: "0.88rem",
                 display: "flex",
                 alignItems: "center",
@@ -505,8 +505,8 @@ export default function AdminDashboard() {
               }}>
                 <span style={{ fontSize: "1.4rem" }}>🛡️</span>
                 <div>
-                  <strong>System Secure • Zero Unusual Activities Detected</strong>
-                  <div style={{ fontSize: "0.78rem", color: "#15803d", marginTop: "2px" }}>
+                  <strong style={{ color: "var(--text-main)" }}>System Secure • Zero Unusual Activities Detected</strong>
+                  <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "2px" }}>
                     Continuous spatial bounds assertions, GPS teleportation velocity checks, and sliding-window rate limiters are actively guarding workers and customers.
                   </div>
                 </div>
@@ -631,30 +631,30 @@ export default function AdminDashboard() {
             description="Immutable logs recorded for authentication, worker approvals, booking status changes, and photo uploads." 
           />
 
-          <div style={{ overflowX: "auto", margin: "1.5rem 0", background: "white", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+          <div style={{ overflowX: "auto", margin: "1.5rem 0", background: "var(--bg-surface)", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-color)", boxShadow: "var(--shadow-sm)" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
               <thead>
-                <tr style={{ background: "#f8fafc", borderBottom: "2px solid #cbd5e1", textAlign: "left" }}>
-                  <th style={{ padding: "10px 14px" }}>Timestamp</th>
-                  <th style={{ padding: "10px 14px" }}>STRIDE</th>
-                  <th style={{ padding: "10px 14px" }}>Action</th>
-                  <th style={{ padding: "10px 14px" }}>User Email</th>
-                  <th style={{ padding: "10px 14px" }}>IP Address</th>
-                  <th style={{ padding: "10px 14px" }}>Details</th>
-                  <th style={{ padding: "10px 14px", textAlign: "center" }}>Account Status</th>
+                <tr style={{ background: "var(--bg-subtle)", borderBottom: "1px solid var(--border-color)", textAlign: "left" }}>
+                  <th style={{ padding: "10px 14px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase" }}>Timestamp</th>
+                  <th style={{ padding: "10px 14px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase" }}>STRIDE</th>
+                  <th style={{ padding: "10px 14px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase" }}>Action</th>
+                  <th style={{ padding: "10px 14px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase" }}>User Email</th>
+                  <th style={{ padding: "10px 14px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase" }}>IP Address</th>
+                  <th style={{ padding: "10px 14px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase" }}>Details</th>
+                  <th style={{ padding: "10px 14px", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.8rem", textTransform: "uppercase", textAlign: "center" }}>Account Status</th>
                 </tr>
               </thead>
               <tbody>
                 {auditLogs.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ padding: "20px", textAlign: "center", color: "#64748b" }}>
+                    <td colSpan="7" style={{ padding: "20px", textAlign: "center", color: "var(--text-muted)" }}>
                       {loadingSecurity ? "Loading audit logs..." : "No audit entries recorded yet. Interactions will appear here."}
                     </td>
                   </tr>
                 ) : (
                   auditLogs.map((log) => (
-                    <tr key={log.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                      <td style={{ padding: "10px 14px", whiteSpace: "nowrap", color: "#64748b", fontSize: "0.8rem" }}>
+                    <tr key={log.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                      <td style={{ padding: "10px 14px", whiteSpace: "nowrap", color: "var(--text-muted)", fontSize: "0.8rem" }}>
                         {new Date(log.created_at).toLocaleString()}
                       </td>
                       <td style={{ padding: "10px 14px" }}>
@@ -663,16 +663,17 @@ export default function AdminDashboard() {
                           borderRadius: "4px", 
                           fontWeight: "bold", 
                           fontSize: "0.75rem",
-                          background: "#e0f2fe", 
-                          color: "#0369a1" 
+                          background: "var(--primary-light)", 
+                          color: "var(--primary)",
+                          border: "1px solid var(--primary-border)"
                         }}>
                           [{log.threat_category}]
                         </span>
                       </td>
-                      <td style={{ padding: "10px 14px", fontWeight: "600", color: "#1e293b" }}>
+                      <td style={{ padding: "10px 14px", fontWeight: "600", color: "var(--text-main)" }}>
                         {log.action}
                       </td>
-                      <td style={{ padding: "10px 14px", color: "#334155" }}>
+                      <td style={{ padding: "10px 14px", color: "var(--text-muted)" }}>
                         {log.user_email || "N/A"}
                       </td>
                       <td style={{ padding: "10px 14px" }}>
@@ -687,9 +688,9 @@ export default function AdminDashboard() {
                             gap: "6px",
                             padding: "3px 8px",
                             borderRadius: "6px",
-                            background: ipPopover.visible && ipPopover.ip === (log.ip_address || "127.0.0.1") ? "#e2e8f0" : "#f1f5f9",
-                            border: "1px solid #cbd5e1",
-                            color: "#0f172a",
+                            background: "var(--bg-subtle)",
+                            border: "1px solid var(--border-color)",
+                            color: "var(--text-main)",
                             fontFamily: "monospace",
                             fontSize: "0.8rem",
                             fontWeight: "600",
@@ -700,7 +701,7 @@ export default function AdminDashboard() {
                           🛰️ {log.ip_address || "127.0.0.1"}
                         </span>
                       </td>
-                      <td style={{ padding: "10px 14px", fontSize: "0.8rem", color: "#334155" }}>
+                      <td style={{ padding: "10px 14px", fontSize: "0.8rem", color: "var(--text-muted)" }}>
                         {(() => {
                           const d = log.details || {};
                           const lat = log.pin_lat ?? d.latitude;
@@ -711,31 +712,31 @@ export default function AdminDashboard() {
                           if (lat && lng) {
                             return (
                               <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-                                <span style={{ background: "#ecfdf5", color: "#047857", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", fontFamily: "monospace", fontSize: "0.76rem" }}>
+                                <span style={{ background: "var(--primary-light)", color: "var(--primary)", border: "1px solid var(--primary-border)", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", fontFamily: "monospace", fontSize: "0.76rem" }}>
                                   📍 {Number(lat).toFixed(4)}° N, {Number(lng).toFixed(4)}° E
                                 </span>
                                 {role && (
-                                  <span style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", color: "#0f172a" }}>
+                                  <span style={{ background: "var(--bg-subtle)", border: "1px solid var(--border-color)", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", color: "var(--text-main)" }}>
                                     {role}
                                   </span>
                                 )}
-                                {name && <span style={{ color: "#475569" }}>• {name}</span>}
-                                {d.city && <span style={{ color: "#64748b" }}>• {d.city}</span>}
+                                {name && <span style={{ color: "var(--text-muted)" }}>• {name}</span>}
+                                {d.city && <span style={{ color: "var(--text-muted)" }}>• {d.city}</span>}
                               </span>
                             );
                           }
                           if (role) {
                             return (
                               <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                                <span style={{ background: "#f1f5f9", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", color: "#0f172a" }}>
+                                <span style={{ background: "var(--bg-subtle)", border: "1px solid var(--border-color)", padding: "2px 6px", borderRadius: "4px", fontWeight: "600", color: "var(--text-main)" }}>
                                   {role}
                                 </span>
-                                {name && <span style={{ color: "#475569" }}>{name}</span>}
-                                {d.phone && <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>({d.phone})</span>}
+                                {name && <span style={{ color: "var(--text-muted)" }}>{name}</span>}
+                                {d.phone && <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>({d.phone})</span>}
                               </span>
                             );
                           }
-                          return <span style={{ color: "#94a3b8" }}>—</span>;
+                          return <span style={{ color: "var(--text-muted)" }}>—</span>;
                         })()}
                       </td>
                       <td style={{ padding: "10px 14px", textAlign: "center", whiteSpace: "nowrap" }}>
@@ -808,11 +809,11 @@ export default function AdminDashboard() {
                             <span style={{ 
                               fontSize: "0.72rem", 
                               fontWeight: "600", 
-                              color: "#166534", 
-                              background: "#f0fdf4", 
+                              color: "var(--primary)", 
+                              background: "var(--primary-light)", 
                               padding: "3px 8px", 
                               borderRadius: "4px",
-                              border: "1px solid #bbf7d0",
+                              border: "1px solid var(--primary-border)",
                               display: "inline-flex",
                               alignItems: "center",
                               gap: "4px"
