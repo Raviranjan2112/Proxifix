@@ -8,7 +8,15 @@ import { recordFailedLoginAttempt } from "../utils/securityAlerts.js";
 const registerSchema = z
   .object({
     name: z.string().trim().min(2).max(120),
-    email: z.string().trim().email().max(255),
+    email: z
+      .string()
+      .trim()
+      .email("Please provide a valid email address.")
+      .max(255)
+      .refine(
+        (val) => val.toLowerCase().endsWith("@gmail.com") && val.trim().length > 10,
+        { message: "Registration requires a valid @gmail.com email address." }
+      ),
     phone: z
       .string()
       .trim()
@@ -136,22 +144,23 @@ export async function register(request, response) {
       `
         SELECT email, phone
         FROM users
-        WHERE email = $1 OR phone = $2
+        WHERE LOWER(email) = LOWER($1) OR phone = $2
       `,
       [data.email.toLowerCase(), data.phone]
     );
 
     if (existingUser.rowCount > 0) {
-      const existing = existingUser.rows[0];
+      const emailTaken = existingUser.rows.some(
+        (r) => r.email.toLowerCase() === data.email.toLowerCase()
+      );
 
       await client.query("ROLLBACK");
 
       return response.status(409).json({
         success: false,
-        message:
-          existing.email === data.email.toLowerCase()
-            ? "This email address is already registered."
-            : "This mobile number is already registered.",
+        message: emailTaken
+          ? "This Gmail address is already registered. Each account requires a unique Gmail ID."
+          : "This mobile number is already registered.",
       });
     }
 
@@ -266,9 +275,12 @@ export async function register(request, response) {
     console.error(error);
 
     if (error.code === "23505") {
+      const isEmail = error.constraint?.includes("email") || error.detail?.includes("email");
       return response.status(409).json({
         success: false,
-        message: "This email address or mobile number is already registered.",
+        message: isEmail
+          ? "This Gmail address is already registered. Each account requires a unique Gmail ID."
+          : "This mobile number is already registered.",
       });
     }
 

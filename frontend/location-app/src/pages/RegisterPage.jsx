@@ -80,6 +80,17 @@ export default function RegisterPage() {
       return;
     }
 
+    const trimmedEmail = form.email.trim().toLowerCase();
+    if (!trimmedEmail) {
+      setMessage("Please enter your Gmail address.");
+      return;
+    }
+
+    if (!trimmedEmail.endsWith("@gmail.com") || trimmedEmail.length <= 10) {
+      setMessage("Registration requires a valid @gmail.com email address.");
+      return;
+    }
+
     if (!isPhoneVerified || !form.verificationToken) {
       setMessage("⚠️ WhatsApp verification is mandatory. Please verify your mobile number via WhatsApp before creating an account.");
       setShowOtpModal(true);
@@ -216,16 +227,21 @@ export default function RegisterPage() {
           </label>
 
           <label>
-            Email address
+            Gmail address (Mandatory)
             <input
               name="email"
               type="email"
               value={form.email}
               onChange={updateField}
-              placeholder="you@example.com"
+              placeholder="youremail@gmail.com"
+              pattern=".+@gmail\.com"
+              title="Must be a valid @gmail.com address"
               autoComplete="email"
               required
             />
+            <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: 4, display: "block" }}>
+              Only @gmail.com addresses are permitted. Each account requires a unique Gmail ID.
+            </span>
           </label>
 
           <label>
