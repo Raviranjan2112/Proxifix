@@ -314,8 +314,8 @@ export default function CustomerDashboard() {
           </Link>
           <span className="welcome-user">Hi, {user?.name?.split(" ")[0] || "User"}</span>
           <ThemeToggle />
-          <button className="btn btn-outline" type="button" onClick={handleLogout} title="Logout">
-            <LogOut size={15} /> <span className="logout-text">Logout</span>
+          <button className="btn btn-outline nav-logout-btn" type="button" onClick={handleLogout} title="Logout">
+            <LogOut size={16} /> <span className="logout-text">Logout</span>
           </button>
         </nav>
       </header>

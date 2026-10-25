@@ -2192,72 +2192,114 @@ textarea:focus {
   display: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 650px) {
   .topbar,
   .auth-topbar,
   .admin-topbar {
-    min-height: 62px !important;
-    padding: 8px 12px !important;
+    min-height: 58px !important;
+    padding: 0 12px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     box-sizing: border-box !important;
+    width: 100% !important;
   }
 
+  .nav-actions,
   .auth-nav-actions,
   .admin-topbar-actions {
     display: flex !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 8px !important;
     margin: 0 !important;
     flex-shrink: 0 !important;
   }
 
+  /* Hide redundant welcome text in navbar on phones */
+  .welcome-user {
+    display: none !important;
+  }
+
+  /* Make theme toggle an exact 34x34 square */
   .theme-toggle-btn {
     width: 34px !important;
     height: 34px !important;
+    min-width: 34px !important;
     flex-shrink: 0 !important;
     margin: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    border-radius: 9px !important;
     box-sizing: border-box !important;
   }
 
+  /* Auth nav link (Home) becomes a clean icon-only button on mobile */
+  .auth-nav-link {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 9px !important;
+    background: var(--bg-subtle) !important;
+    border: 1px solid var(--border-color) !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .auth-nav-link span {
+    display: none !important;
+  }
+
+  /* Logout button becomes a clean 34x34 icon button */
+  .nav-logout-btn,
+  .admin-logout-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 9px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  .nav-logout-btn span,
+  .admin-logout-btn span,
+  .logout-text {
+    display: none !important;
+  }
+
   .auth-cta-text-full {
-    display: none;
+    display: none !important;
   }
 
   .auth-cta-text-short {
-    display: inline;
-  }
-
-  .auth-nav-link {
-    padding: 6px 8px !important;
-    font-size: 0.84rem !important;
+    display: inline !important;
   }
 
   .auth-nav-cta {
-    padding: 6px 10px !important;
+    padding: 6px 12px !important;
     font-size: 0.8rem !important;
+    height: 34px !important;
+    border-radius: 9px !important;
   }
 
-  .logout-text {
-    display: none;
+  .brand {
+    font-size: 1.15rem !important;
+    gap: 8px !important;
   }
 
-  .welcome-user {
-    font-size: 0.84rem;
-    max-width: 90px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-@media (max-width: 380px) {
-  .auth-nav-link span {
-    display: none;
+  .brand-icon {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 1rem !important;
+    border-radius: 8px !important;
   }
 }
 
